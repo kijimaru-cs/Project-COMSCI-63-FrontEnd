@@ -5,7 +5,7 @@
       <img class="center" src="KU_Logo_PNG.png">
     </div>
     <br><br><br>
-    <p style="font-size:20px;color:#78909C">เข้าสู่ระบบห้องเรียนของนิสิต</p>
+    <p style="font-size:20px;color:#78909C">เข้าสู่ระบบห้องเรียน</p>
     <v-text-field label="Username" :rules="rules" hide-details="auto" v-model="username"></v-text-field>
     <v-text-field
             v-model="password"
