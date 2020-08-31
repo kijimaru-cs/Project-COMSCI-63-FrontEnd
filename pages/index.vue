@@ -2,45 +2,42 @@
 <template>
   <div class="container">
     <div class="logo-style">
-      <img class="center" src="KU_Logo_PNG.png">
+      <img class="center" src="KU_Logo_PNG.png" />
     </div>
     <div>
-        <div class="center-button">
-            <v-btn href="/login" x-large color="success" dark="">Login</v-btn>
-            <v-btn href="/register" x-large color="success" dark>Register</v-btn>
-        </div>
+      <div class="center-button">
+        <v-btn href="/login" x-large color="success" dark>Login</v-btn>
+        <v-btn href="/register" x-large color="success" dark>Register</v-btn>
+      </div>
     </div>
   </div>
 </template>
 
 
 <script>
-  export default {
-    data: () => ({
-    }),
-    layout: 'toolbar',
-    methods:{
-    }
-   }
-   
+export default {
+  data: () => ({}),
+  layout: "toolbar",
+  methods: {},
+};
 </script>
 
 
 <style scoped>
-  .container{
-    justify-items: center;
-    align-items: center;
-  }
-  .font-style{
-    text-align: center;
-  }
-  .center {
+.container {
+  justify-items: center;
+  align-items: center;
+}
+.font-style {
+  text-align: center;
+}
+.center {
   display: block;
   margin-left: auto;
   margin-right: auto;
   width: 15%;
 }
-.center-button{
+.center-button {
   text-align: center;
 }
 </style>
