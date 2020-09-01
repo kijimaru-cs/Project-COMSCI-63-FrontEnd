@@ -5,6 +5,7 @@
     </div>
 
     <v-text-field label="Username" :rules="rules" hide-details="auto" v-model="username"></v-text-field>
+    <v-text-field label="Role" :rules="rules" hide-details="auto" v-model="role"></v-text-field>
     <v-text-field
       v-model="password"
       :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
@@ -47,6 +48,7 @@ export default {
     username: "",
     password: "",
     email: "",
+    role: "",
     pass: false,
     rules: [
       (value) => !!value || "Required.",
@@ -78,6 +80,7 @@ export default {
             username: this.username,
             password: this.password,
             email: this.email,
+            role: this.role,
           });
         } catch (error) {
           console.log(error);

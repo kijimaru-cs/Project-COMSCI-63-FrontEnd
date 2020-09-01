@@ -35,6 +35,8 @@
 
 <script>
 import { db, auth } from "@/lib/firebase.js";
+import errorVue from "../../layouts/error.vue";
+import { userError } from "@/lib/error.js";
 
 export default {
   data: () => ({
@@ -51,7 +53,7 @@ export default {
   layout: "toolbar",
   methods: {
     doSave() {
-      alert("Username = " + this.username + "Password = " + this.password);
+      alert("Username = " + this.email + "Password = " + this.password);
     },
     async login() {
       try {
@@ -68,7 +70,9 @@ export default {
             return item;
           })
         );
-        console.log(docs);
+        if (docs[0].role != "admin") {
+          throw userError({ message: "Role is incorrect" });
+        }
       } catch (error) {
         console.error(error);
       }

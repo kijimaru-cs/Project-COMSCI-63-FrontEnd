@@ -17,6 +17,7 @@
     "js-cookie": "^2.2.1",
     "jwt-decode": "^2.2.0",
     "material-design-icons-iconfont": "^5.0.1",
+    "mongodb": "^3.6.0",
     "nuxt": "^2.13.0",
     "stylus": "^0.54.7",
     "stylus-loader": "^3.0.2",
