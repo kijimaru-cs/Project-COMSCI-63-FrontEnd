@@ -8,10 +8,10 @@
     <br />
     <p style="font-size:20px;color:#78909C">เข้าสู่ระบบห้องเรียนของนิสิต</p>
     <v-text-field
+      v-model="email"
       label="E-mail"
       :rules="rules"
       hide-details="auto"
-      v-model="email"
     ></v-text-field>
     <v-text-field
       v-model="password"
@@ -42,11 +42,12 @@
 
 <script>
 import { db, auth } from "@/lib/firebase.js";
+import errorVue from "../../layouts/error.vue";
+import { userError } from "@/lib/error.js";
 
 export default {
   data: () => ({
     show1: false,
-    localData: {},
     email: "",
     password: "",
     error: "",
@@ -59,7 +60,7 @@ export default {
   layout: "toolbar",
   methods: {
     doSave() {
-      alert("Username = " + this.username + "Password = " + this.password);
+      alert("Username = " + this.email + "Password = " + this.password);
     },
     async login() {
       try {
@@ -100,12 +101,7 @@ export default {
         })
       );
       if (docs != null) {
-        if (docs[0].role === "STUDENT") {
-          this.$router.push("/student");
-        } else if (docs[0].role === "TEACHER") {
-          this.$router.push("/teacher");
-        }
-        console.log("LOGIN SUCCESS");
+        this.$router.push("/admin/edit");
       } else {
         console.log("LOGIN FAILED");
       }
