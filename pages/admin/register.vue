@@ -17,46 +17,47 @@
         </v-col>
       </v-row>
     </v-container>
+    <div v-if="userRole != ''">
+      <v-text-field
+        v-if="userRole === 'STUDENT'"
+        label="StudentCode"
+        :rules="rulesCode"
+        hide-details="auto"
+        v-model="code"
+      ></v-text-field>
 
-    <v-text-field
-      v-if="userRole === 'STUDENT'"
-      label="StudentCode"
-      :rules="rulesCode"
-      hide-details="auto"
-      v-model="code"
-    ></v-text-field>
+      <v-text-field
+        label="Username"
+        :rules="rules"
+        hide-details="auto"
+        v-model="username"
+      ></v-text-field>
 
-    <v-text-field
-      label="Username"
-      :rules="rules"
-      hide-details="auto"
-      v-model="username"
-    ></v-text-field>
+      <v-text-field
+        v-model="password"
+        :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
+        :type="show1 ? 'text' : 'password'"
+        name="input-10-1"
+        label="Password"
+        hint="At least 8 characters"
+        counter
+        @click:append="show1 = !show1"
+      ></v-text-field>
 
-    <v-text-field
-      v-model="password"
-      :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
-      :type="show1 ? 'text' : 'password'"
-      name="input-10-1"
-      label="Password"
-      hint="At least 8 characters"
-      counter
-      @click:append="show1 = !show1"
-    ></v-text-field>
+      <v-text-field
+        v-model="email"
+        :type="show1 ? 'text' : 'email'"
+        name="input-10-1"
+        label="E-mail"
+      ></v-text-field>
 
-    <v-text-field
-      v-model="email"
-      :type="show1 ? 'text' : 'email'"
-      name="input-10-1"
-      label="E-mail"
-    ></v-text-field>
-
-    <v-text-field
-      v-if="userRole === 'TEACHER'"
-      v-model="subject"
-      :type="show1 ? 'text' : 'subject'"
-      label="Subject"
-    ></v-text-field>
+      <v-text-field
+        v-if="userRole === 'TEACHER'"
+        v-model="subject"
+        :type="show1 ? 'text' : 'subject'"
+        label="Subject"
+      ></v-text-field>
+    </div>
 
     <div class="my-2">
       <v-btn
@@ -119,27 +120,29 @@ export default {
     async register() {
       try {
         await auth.createUserWithEmailAndPassword(this.email, this.password);
-        this.pass = true;
       } catch (error) {
         console.log(error);
       }
-      if (this.pass === true) {
-        try {
-          await auth.signInWithEmailAndPassword(this.email, this.password);
-        } catch (error) {
-          console.log(error);
-        }
-
-        try {
+      try {
+        if (this.userRole === "TEACHER") {
           await db.collection("user").add({
+            username: this.username,
+            password: this.password,
+            email: this.email,
+            role: this.userRole,
+            subject: this.subject
+          });
+        } else if (this.userRole === "STUDENT") {
+          await db.collection("user").add({
+            code: this.code,
             username: this.username,
             password: this.password,
             email: this.email,
             role: this.userRole
           });
-        } catch (error) {
-          console.log(error);
         }
+      } catch (error) {
+        console.log(error);
       }
     }
   }

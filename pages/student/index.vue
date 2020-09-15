@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <p>This is teacher Screen</p>
+    <p>This is student Screen</p>
     <button @click="logout">Logout</button>
     <p>{{ userEmail }}</p>
   </div>

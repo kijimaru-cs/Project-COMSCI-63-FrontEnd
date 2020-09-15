@@ -38,12 +38,6 @@
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
                       <v-text-field
-                        v-model="editedItemTeacher.email"
-                        label="E-mail"
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="12" sm="6" md="4">
-                      <v-text-field
                         v-model="editedItemTeacher.role"
                         label="Role"
                       ></v-text-field>
@@ -78,12 +72,6 @@
                       <v-text-field
                         v-model="editedItemStudent.username"
                         label="UserName"
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="12" sm="6" md="4">
-                      <v-text-field
-                        v-model="editedItemStudent.email"
-                        label="E-mail"
                       ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6" md="4">
@@ -178,25 +166,22 @@ export default {
     editedIndex: -1,
     editedItemTeacher: {
       username: "",
-      email: "",
+
       role: "",
       subject: ""
     },
     defaultItemTeacher: {
       username: "",
-      email: "",
       role: "",
       subject: ""
     },
     editedItemStudent: {
       username: "",
-      email: "",
       role: "",
       code: ""
     },
     defaultItemStudent: {
       username: "",
-      email: "",
       role: "",
       code: ""
     }

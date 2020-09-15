@@ -100,8 +100,12 @@ export default {
         })
       );
       if (docs != null) {
+        if (docs[0].role === "STUDENT") {
+          this.$router.push("/student");
+        } else if (docs[0].role === "TEACHER") {
+          this.$router.push("/teacher");
+        }
         console.log("LOGIN SUCCESS");
-        // this.$router.push("/admin/edit");
       } else {
         console.log("LOGIN FAILED");
       }
