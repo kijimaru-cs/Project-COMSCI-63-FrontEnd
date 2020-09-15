@@ -8,6 +8,8 @@
       <div class="center-button">
         <v-btn x-large href="/admin/login" color="success" dark>Login</v-btn>
         <v-btn x-large href="/admin/register" color="success" dark>Register</v-btn>
+        <v-btn x-large href="/admin/edit" color="success" dark>Edit</v-btn>
+        <v-btn x-large href="/admin/test" color="success" dark>Edit</v-btn>
       </div>
     </div>
   </div>

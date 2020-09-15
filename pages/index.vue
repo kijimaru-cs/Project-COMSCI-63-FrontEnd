@@ -1,4 +1,3 @@
-
 <template>
   <div class="container">
     <div class="logo-style">
@@ -7,21 +6,18 @@
     <div>
       <div class="center-button">
         <v-btn href="/login" x-large color="success" dark>Login</v-btn>
-        <v-btn href="/register" x-large color="success" dark>Register</v-btn>
       </div>
     </div>
   </div>
 </template>
 
-
 <script>
 export default {
   data: () => ({}),
   layout: "toolbar",
-  methods: {},
+  methods: {}
 };
 </script>
-
 
 <style scoped>
 .container {

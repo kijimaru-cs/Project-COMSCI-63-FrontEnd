@@ -7,7 +7,12 @@
     <br />
     <br />
     <p style="font-size:20px;color:#78909C">เข้าสู่ระบบห้องเรียนของนิสิต</p>
-    <v-text-field label="E-mail" :rules="rules" hide-details="auto" v-model="email"></v-text-field>
+    <v-text-field
+      label="E-mail"
+      :rules="rules"
+      hide-details="auto"
+      v-model="email"
+    ></v-text-field>
     <v-text-field
       v-model="password"
       :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
@@ -16,6 +21,7 @@
       label="Password"
       hint="At least 8 characters"
       counter
+      @keyup.enter="login"
       @click:append="show1 = !show1"
     ></v-text-field>
     <p style="color: red">{{ error }}</p>
@@ -28,7 +34,8 @@
         large
         color="#00695C"
         @click="login"
-      >Login</v-btn>
+        >Login</v-btn
+      >
     </div>
   </div>
 </template>
@@ -39,14 +46,15 @@ import { db, auth } from "@/lib/firebase.js";
 export default {
   data: () => ({
     show1: false,
+    localData: {},
     email: "",
     password: "",
     error: "",
     dataCheck: {},
     rules: [
-      (value) => !!value || "Required.",
-      (value) => (value && value.length >= 3) || "Min 3 characters",
-    ],
+      value => !!value || "Required.",
+      value => (value && value.length >= 3) || "Min 3 characters"
+    ]
   }),
   layout: "toolbar",
   methods: {
@@ -55,25 +63,50 @@ export default {
     },
     async login() {
       try {
-        const snapshot = await db
-          .collection("user")
-          .where("email", "==", this.email)
-          .get();
-        if (snapshot.empty) return null;
-        const docs = await Promise.all(
-          snapshot.docs.map(async (doc) => {
-            let item = {};
-            item = await doc.data();
-            item.id = doc.id;
-            return item;
-          })
-        );
-        console.log(docs);
+        await auth.signInWithEmailAndPassword(this.email, this.password);
+        const _this = this;
+        auth.onAuthStateChanged(function(user) {
+          if (user) {
+            // User is signed in.
+            _this.findByEmail();
+            console.log(user.displayName);
+            console.log(user.email);
+            console.log(user.emailVerified);
+            console.log(user.uid);
+            self.userEmail = user.email;
+            // ...
+          } else {
+            // User is signed out.
+            // ...
+          }
+        });
       } catch (error) {
         console.error(error);
       }
     },
-  },
+    async findByEmail() {
+      const snapshot = await db
+        .collection("user")
+        .where("email", "==", this.email)
+        .limit(1)
+        .get();
+      if (snapshot.empty) return null;
+      const docs = await Promise.all(
+        snapshot.docs.map(async doc => {
+          let item = {};
+          item = await doc.data();
+          item.id = doc.id;
+          return item;
+        })
+      );
+      if (docs != null) {
+        console.log("LOGIN SUCCESS");
+        // this.$router.push("/admin/edit");
+      } else {
+        console.log("LOGIN FAILED");
+      }
+    }
+  }
 };
 </script>
 
