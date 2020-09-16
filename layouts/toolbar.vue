@@ -7,9 +7,10 @@
             <img src="KU_Logo_PNG.png" style="width:60px;height:60px;" />
           </a></div
       ></v-app-bar-nav-icon>
-      <v-toolbar-title><h1>Classroom</h1></v-toolbar-title>
+      <v-toolbar-title
+        ><h1>Classroom {{ getUser }}</h1></v-toolbar-title
+      >
       <br />
-
       <v-spacer></v-spacer>
       <v-btn icon>
         <v-icon>mdi-dots-vertical</v-icon>
@@ -24,44 +25,55 @@
 </template>
 
 <script>
-// import { mapGetters } from "vuex";
+import { mapGetters } from "vuex";
 import firebase from "firebase/app";
 import "firebase/auth";
 export default {
   data: () => ({}),
-  async created() {
-    firebase.auth().onAuthStateChanged(function(user) {
-      if (user) {
-        // User is signed in.
-        // _this.findByEmail();
-        console.log(user.displayName);
-        console.log(user.email);
-        console.log(user.emailVerified);
-        console.log(user.uid);
-        self.userEmail = user.email;
-        // this.$store.dispatch("user/getDataByEmail", { email: user.email });
-        // console.log(this.getUser.email);
-        // ...
-      } else {
-        // User is signed out.
-        // ...
+
+  async mounted() {
+    const data = await new Promise((resolve, reject) =>
+      firebase.auth().onAuthStateChanged(async user => {
+        resolve(user);
+      })
+    );
+    console.log(data);
+
+    if (data) {
+      const snapshot = await firebase
+        .firestore()
+        .collection("user")
+        .where("email", "==", data.email)
+        .limit(1)
+        .get();
+      if (!snapshot.empty) {
+        const [docs] = await Promise.all(
+          snapshot.docs.map(async doc => {
+            let item = {};
+            item = await doc.data();
+            item.id = doc.id;
+            return item;
+          })
+        );
+        this.$store.dispatch("user/getDataByEmail", docs);
       }
-    });
+      console.log("data", data);
+    }
+  },
+  watch: {
+    // getUser() {
+    //   if (this.getUser) {
+    //     console.log(getUser.email, "LOGIN SUCCESS");
+    //   } else {
+    //     console.log("LOGIN FAILED");
+    //   }
+    // }
+  },
+  computed: {
+    ...mapGetters({
+      getUser: "user/getUser"
+    })
   }
-  //   watch: {
-  //     getUser() {
-  //       if (this.getUser) {
-  //         console.log(getuser.email, "LOGIN SUCCESS");
-  //       } else {
-  //         console.log("LOGIN FAILED");
-  //       }
-  //     }
-  //   },
-  //   computed: {
-  //     ...mapGetters({
-  //       getUser: "user/getUser"
-  //     })
-  //   }
 };
 </script>
 

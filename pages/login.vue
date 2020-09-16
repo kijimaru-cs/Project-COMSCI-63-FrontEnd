@@ -37,11 +37,23 @@
         >Login</v-btn
       >
     </div>
+    <div class="my-2">
+      <v-btn
+        class="center"
+        style="color: white"
+        depressed
+        large
+        color="#00695C"
+        @click="Signout"
+        >SIGNOUT</v-btn
+      >
+    </div>
   </div>
 </template>
 
 <script>
 import { db, auth } from "@/lib/firebase.js";
+import { toLower } from "lodash";
 
 export default {
   data: () => ({
@@ -61,25 +73,46 @@ export default {
     doSave() {
       alert("Username = " + this.username + "Password = " + this.password);
     },
+    Signout() {
+      auth
+        .signOut()
+        .then(function() {
+          // Sign-out successful.
+        })
+        .catch(function(error) {
+          // An error happened.
+        });
+    },
+
     async login() {
       try {
         await auth.signInWithEmailAndPassword(this.email, this.password);
-        const _this = this;
-        auth.onAuthStateChanged(function(user) {
-          if (user) {
-            // User is signed in.
-            _this.findByEmail();
-            console.log(user.displayName);
-            console.log(user.email);
-            console.log(user.emailVerified);
-            console.log(user.uid);
-            self.userEmail = user.email;
-            // ...
-          } else {
-            // User is signed out.
-            // ...
+        const data = await new Promise((resolve, reject) =>
+          auth.onAuthStateChanged(async user => {
+            resolve(user);
+          })
+        );
+        console.log(data.email);
+        if (data) {
+          const snapshot = await db
+            .collection("user")
+            .where("email", "==", toLower(data.email))
+            .limit(1)
+            .get();
+          if (!snapshot.empty) {
+            const [docs] = await Promise.all(
+              snapshot.docs.map(async doc => {
+                let item = {};
+                item = await doc.data();
+                item.id = doc.id;
+                return item;
+              })
+            );
+            console.log(docs);
+            this.$store.dispatch("user/getDataByEmail", docs);
           }
-        });
+          console.log("data", data);
+        }
       } catch (error) {
         console.error(error);
       }
@@ -87,7 +120,7 @@ export default {
     async findByEmail() {
       const snapshot = await db
         .collection("user")
-        .where("email", "==", this.email)
+        .where("email", "==", toLower(this.email))
         .limit(1)
         .get();
       if (snapshot.empty) return null;
@@ -101,9 +134,9 @@ export default {
       );
       if (docs != null) {
         if (docs[0].role === "STUDENT") {
-          this.$router.push("/student");
+          // this.$router.push("/student");
         } else if (docs[0].role === "TEACHER") {
-          this.$router.push("/teacher");
+          // this.$router.push("/teacher");
         }
         console.log("LOGIN SUCCESS");
       } else {

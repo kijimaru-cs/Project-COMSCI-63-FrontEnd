@@ -75,6 +75,7 @@
 
 <script>
 import { db, auth } from "@/lib/firebase.js";
+import { toLower } from "lodash";
 
 export default {
   data: () => ({
@@ -128,7 +129,7 @@ export default {
           await db.collection("user").add({
             username: this.username,
             password: this.password,
-            email: this.email,
+            email: toLower(this.email),
             role: this.userRole,
             subject: this.subject
           });
@@ -137,7 +138,7 @@ export default {
             code: this.code,
             username: this.username,
             password: this.password,
-            email: this.email,
+            email: toLower(this.email),
             role: this.userRole
           });
         }

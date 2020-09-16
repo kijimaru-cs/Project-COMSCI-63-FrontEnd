@@ -24,6 +24,7 @@
         </v-card>
       </v-dialog>
     </v-row>
+    <div><CardRoom /></div>
   </div>
 </template>
 
