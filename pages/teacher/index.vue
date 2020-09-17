@@ -66,6 +66,7 @@
 import { mapGetters } from "vuex";
 import { db } from "@/lib/firebase";
 export default {
+<<<<<<< HEAD
   data: () => ({
     dialog: false,
     nameRoom: "",
@@ -141,6 +142,10 @@ export default {
       getUser: "user/getUser"
     })
   }
+=======
+  layout: "toolbar",
+  data: () => ({})
+>>>>>>> master
 };
 </script>
 

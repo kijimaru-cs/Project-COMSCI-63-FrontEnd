@@ -6,7 +6,7 @@
     <br />
     <br />
     <br />
-    <p style="font-size:20px;color:#78909C">เข้าสู่ระบบห้องเรียนของนิสิต</p>
+    <p style="font-size:20px;color:#78909C">เข้าสู่ระบบ Administator</p>
     <v-text-field
       v-model="email"
       label="E-mail"

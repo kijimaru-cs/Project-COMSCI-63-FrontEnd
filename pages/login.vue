@@ -6,13 +6,8 @@
     <br />
     <br />
     <br />
-    <p style="font-size:20px;color:#78909C">เข้าสู่ระบบห้องเรียนของนิสิต</p>
-    <v-text-field
-      label="E-mail"
-      :rules="rules"
-      hide-details="auto"
-      v-model="email"
-    ></v-text-field>
+    <p style="font-size:20px;color:#78909C">เข้าสู่ระบบห้องเรียน</p>
+    <v-text-field label="E-mail" :rules="rules" hide-details="auto" v-model="email"></v-text-field>
     <v-text-field
       v-model="password"
       :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
@@ -34,8 +29,7 @@
         large
         color="#00695C"
         @click="login"
-        >Login</v-btn
-      >
+      >Login</v-btn>
     </div>
     <div class="my-2">
       <v-btn
@@ -64,9 +58,9 @@ export default {
     error: "",
     dataCheck: {},
     rules: [
-      value => !!value || "Required.",
-      value => (value && value.length >= 3) || "Min 3 characters"
-    ]
+      (value) => !!value || "Required.",
+      (value) => (value && value.length >= 3) || "Min 3 characters",
+    ],
   }),
   layout: "toolbar",
   methods: {
@@ -87,6 +81,7 @@ export default {
     async login() {
       try {
         await auth.signInWithEmailAndPassword(this.email, this.password);
+<<<<<<< HEAD
         const data = await new Promise((resolve, reject) =>
           auth.onAuthStateChanged(async user => {
             resolve(user);
@@ -126,14 +121,61 @@ export default {
                 });
               console.log("LOGIN FAILED");
             }
+=======
+        const _this = this;
+        auth.onAuthStateChanged(function (user) {
+          if (user) {
+            // User is signed in.
+            _this.findByEmail();
+            // console.log(user.displayName);
+            // console.log(user.email);
+            // console.log(user.emailVerified);
+            // console.log(user.uid);
+            self.userEmail = user.email;
+            // ...
+          } else {
+            // User is signed out.
+            // ...
+>>>>>>> master
           }
           console.log("data", data);
         }
       } catch (error) {
         console.error(error);
       }
+<<<<<<< HEAD
     }
   }
+=======
+    },
+    async findByEmail() {
+      const snapshot = await db
+        .collection("user")
+        .where("email", "==", this.email)
+        .limit(1)
+        .get();
+      if (snapshot.empty) return null;
+      const docs = await Promise.all(
+        snapshot.docs.map(async (doc) => {
+          let item = {};
+          item = await doc.data();
+          item.id = doc.id;
+          return item;
+        })
+      );
+      if (docs != null) {
+        if (docs[0].role === "STUDENT") {
+          this.$router.push("/student/classroom");
+        } else if (docs[0].role === "TEACHER") {
+          this.$router.push("/teacher/classroom");
+        }
+        console.log("LOGIN SUCCESS");
+      } else {
+        console.log("LOGIN FAILED");
+      }
+    },
+  },
+>>>>>>> master
 };
 </script>
 
