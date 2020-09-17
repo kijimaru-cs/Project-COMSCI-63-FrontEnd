@@ -6,13 +6,8 @@
     <br />
     <br />
     <br />
-    <p style="font-size:20px;color:#78909C">เข้าสู่ระบบห้องเรียนของนิสิต</p>
-    <v-text-field
-      label="E-mail"
-      :rules="rules"
-      hide-details="auto"
-      v-model="email"
-    ></v-text-field>
+    <p style="font-size:20px;color:#78909C">เข้าสู่ระบบห้องเรียน</p>
+    <v-text-field label="E-mail" :rules="rules" hide-details="auto" v-model="email"></v-text-field>
     <v-text-field
       v-model="password"
       :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
@@ -34,8 +29,7 @@
         large
         color="#00695C"
         @click="login"
-        >Login</v-btn
-      >
+      >Login</v-btn>
     </div>
   </div>
 </template>
@@ -52,9 +46,9 @@ export default {
     error: "",
     dataCheck: {},
     rules: [
-      value => !!value || "Required.",
-      value => (value && value.length >= 3) || "Min 3 characters"
-    ]
+      (value) => !!value || "Required.",
+      (value) => (value && value.length >= 3) || "Min 3 characters",
+    ],
   }),
   layout: "toolbar",
   methods: {
@@ -65,14 +59,14 @@ export default {
       try {
         await auth.signInWithEmailAndPassword(this.email, this.password);
         const _this = this;
-        auth.onAuthStateChanged(function(user) {
+        auth.onAuthStateChanged(function (user) {
           if (user) {
             // User is signed in.
             _this.findByEmail();
-            console.log(user.displayName);
-            console.log(user.email);
-            console.log(user.emailVerified);
-            console.log(user.uid);
+            // console.log(user.displayName);
+            // console.log(user.email);
+            // console.log(user.emailVerified);
+            // console.log(user.uid);
             self.userEmail = user.email;
             // ...
           } else {
@@ -92,7 +86,7 @@ export default {
         .get();
       if (snapshot.empty) return null;
       const docs = await Promise.all(
-        snapshot.docs.map(async doc => {
+        snapshot.docs.map(async (doc) => {
           let item = {};
           item = await doc.data();
           item.id = doc.id;
@@ -101,16 +95,16 @@ export default {
       );
       if (docs != null) {
         if (docs[0].role === "STUDENT") {
-          this.$router.push("/student");
+          this.$router.push("/student/classroom");
         } else if (docs[0].role === "TEACHER") {
-          this.$router.push("/teacher");
+          this.$router.push("/teacher/classroom");
         }
         console.log("LOGIN SUCCESS");
       } else {
         console.log("LOGIN FAILED");
       }
-    }
-  }
+    },
+  },
 };
 </script>
 
