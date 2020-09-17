@@ -92,7 +92,6 @@ export default {
             resolve(user);
           })
         );
-        console.log(data.email);
         if (data) {
           const snapshot = await db
             .collection("user")
@@ -108,39 +107,30 @@ export default {
                 return item;
               })
             );
-            console.log(docs);
             this.$store.dispatch("user/getDataByEmail", docs);
+            if (docs) {
+              if (docs.role === "STUDENT") {
+                this.$router.push("/teacher");
+              } else if (docs.role === "TEACHER") {
+                this.$router.push("/teacher");
+              }
+              console.log("LOGIN SUCCESS");
+            } else {
+              auth
+                .signOut()
+                .then(function() {
+                  // Sign-out successful.
+                })
+                .catch(function(error) {
+                  // An error happened.
+                });
+              console.log("LOGIN FAILED");
+            }
           }
           console.log("data", data);
         }
       } catch (error) {
         console.error(error);
-      }
-    },
-    async findByEmail() {
-      const snapshot = await db
-        .collection("user")
-        .where("email", "==", toLower(this.email))
-        .limit(1)
-        .get();
-      if (snapshot.empty) return null;
-      const docs = await Promise.all(
-        snapshot.docs.map(async doc => {
-          let item = {};
-          item = await doc.data();
-          item.id = doc.id;
-          return item;
-        })
-      );
-      if (docs != null) {
-        if (docs[0].role === "STUDENT") {
-          // this.$router.push("/student");
-        } else if (docs[0].role === "TEACHER") {
-          // this.$router.push("/teacher");
-        }
-        console.log("LOGIN SUCCESS");
-      } else {
-        console.log("LOGIN FAILED");
       }
     }
   }
