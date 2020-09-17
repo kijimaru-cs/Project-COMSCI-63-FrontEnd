@@ -8,6 +8,7 @@
 <script>
 import { db } from "@/lib/firebase.js";
 export default {
+  layout: "toolbar",
   data: () => ({})
 };
 </script>
