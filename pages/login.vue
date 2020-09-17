@@ -31,11 +31,23 @@
         @click="login"
       >Login</v-btn>
     </div>
+    <div class="my-2">
+      <v-btn
+        class="center"
+        style="color: white"
+        depressed
+        large
+        color="#00695C"
+        @click="Signout"
+        >SIGNOUT</v-btn
+      >
+    </div>
   </div>
 </template>
 
 <script>
 import { db, auth } from "@/lib/firebase.js";
+import { toLower } from "lodash";
 
 export default {
   data: () => ({
@@ -55,9 +67,61 @@ export default {
     doSave() {
       alert("Username = " + this.username + "Password = " + this.password);
     },
+    Signout() {
+      auth
+        .signOut()
+        .then(function() {
+          // Sign-out successful.
+        })
+        .catch(function(error) {
+          // An error happened.
+        });
+    },
+
     async login() {
       try {
         await auth.signInWithEmailAndPassword(this.email, this.password);
+<<<<<<< HEAD
+        const data = await new Promise((resolve, reject) =>
+          auth.onAuthStateChanged(async user => {
+            resolve(user);
+          })
+        );
+        if (data) {
+          const snapshot = await db
+            .collection("user")
+            .where("email", "==", toLower(data.email))
+            .limit(1)
+            .get();
+          if (!snapshot.empty) {
+            const [docs] = await Promise.all(
+              snapshot.docs.map(async doc => {
+                let item = {};
+                item = await doc.data();
+                item.id = doc.id;
+                return item;
+              })
+            );
+            this.$store.dispatch("user/getDataByEmail", docs);
+            if (docs) {
+              if (docs.role === "STUDENT") {
+                this.$router.push("/teacher");
+              } else if (docs.role === "TEACHER") {
+                this.$router.push("/teacher");
+              }
+              console.log("LOGIN SUCCESS");
+            } else {
+              auth
+                .signOut()
+                .then(function() {
+                  // Sign-out successful.
+                })
+                .catch(function(error) {
+                  // An error happened.
+                });
+              console.log("LOGIN FAILED");
+            }
+=======
         const _this = this;
         auth.onAuthStateChanged(function (user) {
           if (user) {
@@ -72,11 +136,17 @@ export default {
           } else {
             // User is signed out.
             // ...
+>>>>>>> master
           }
-        });
+          console.log("data", data);
+        }
       } catch (error) {
         console.error(error);
       }
+<<<<<<< HEAD
+    }
+  }
+=======
     },
     async findByEmail() {
       const snapshot = await db
@@ -105,6 +175,7 @@ export default {
       }
     },
   },
+>>>>>>> master
 };
 </script>
 
