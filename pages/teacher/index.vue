@@ -68,7 +68,7 @@ export default {
     dataRoom: [],
     role: "",
   }),
-  // layout: "normal",
+  layout: "normal",
   mounted() {
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
@@ -132,6 +132,7 @@ export default {
               return item;
             })
           );
+
           console.log(this.dataRoom.idStudent);
         }
       } catch (error) {
@@ -142,9 +143,15 @@ export default {
   },
   computed: {
     ...mapGetters({
+<<<<<<< HEAD
       getUser: "user/getUser",
     }),
   },
+=======
+      getUser: "user/getUser"
+    })
+  }
+>>>>>>> master
 };
 </script>
 

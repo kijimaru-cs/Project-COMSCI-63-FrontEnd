@@ -89,6 +89,32 @@
                 <v-btn color="blue darken-1" text @click="save">Save</v-btn>
               </v-card-actions>
             </div>
+
+            <div v-else-if="dataUs.role === 'CLASSROOM'">
+              <v-card-text>
+                <v-container>
+                  <v-row>
+                    <v-col cols="12" sm="6" md="4">
+                      <v-text-field
+                        v-model="editedItemClassRoom.code"
+                        label="CodeRoom"
+                      ></v-text-field>
+                    </v-col>
+                    <v-col cols="12" sm="6" md="4">
+                      <v-text-field
+                        v-model="editedItemClassRoom.name"
+                        label="NameRoom"
+                      ></v-text-field>
+                    </v-col>
+                  </v-row>
+                </v-container>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="blue darken-1" text @click="close">Cancel</v-btn>
+                <v-btn color="blue darken-1" text @click="save">Save</v-btn>
+              </v-card-actions>
+            </div>
           </v-card>
         </v-dialog>
       </v-toolbar>
@@ -148,6 +174,11 @@ export default {
       { text: "ตำเเหน่ง", value: "role" },
       { text: "Actions", value: "actions", sortable: false }
     ],
+    headerClassRoom: [
+      { text: "รหัสห้องเรียน", align: "start", sortable: false, value: "code" },
+      { text: "ชื่อ", value: "name" },
+      { text: "Actions", value: "actions", sortable: false }
+    ],
     choice: [
       {
         text: "ALLROLE",
@@ -161,9 +192,18 @@ export default {
       {
         text: "STUDENT",
         value: "STUDENT"
-      }
+      },
+      { text: "CLASSROOM", value: "CLASSROOM" }
     ],
     editedIndex: -1,
+    editedItemClassRoom: {
+      name: "",
+      code: ""
+    },
+    defaultItemClassRoom: {
+      name: "",
+      code: ""
+    },
     editedItemTeacher: {
       username: "",
 
@@ -202,23 +242,41 @@ export default {
           this.headers = this.headerTeacher;
         } else if (this.userRole === "STUDENT") {
           this.headers = this.headerStudent;
+        } else if (this.userRole === "CLASSROOM") {
+          this.headers = this.headerClassRoom;
         } else {
           this.headers = this.headerAll;
         }
-        let snapshot = await db.collection("user");
-        if (this.userRole) {
+        console.log(this.userRole);
+        if (this.userRole === "CLASSROOM") {
+          let snapshot = await db.collection("room");
           snapshot = await snapshot.where("role", "==", this.userRole);
+          snapshot = await snapshot.get();
+          const data = await Promise.all(
+            snapshot.docs.map(async doc => {
+              let item = {};
+              item = await doc.data();
+              item.id = doc.id;
+              return item;
+            })
+          );
+          this.dataUser = data;
+        } else {
+          let snapshot = await db.collection("user");
+          if (this.userRole) {
+            snapshot = await snapshot.where("role", "==", this.userRole);
+          }
+          snapshot = await snapshot.get();
+          const data = await Promise.all(
+            snapshot.docs.map(async doc => {
+              let item = {};
+              item = await doc.data();
+              item.id = doc.id;
+              return item;
+            })
+          );
+          this.dataUser = data;
         }
-        snapshot = await snapshot.get();
-        const data = await Promise.all(
-          snapshot.docs.map(async doc => {
-            let item = {};
-            item = await doc.data();
-            item.id = doc.id;
-            return item;
-          })
-        );
-        this.dataUser = data;
       } catch (error) {
         console.log(error);
       }
@@ -232,7 +290,11 @@ export default {
       } else if (item.role === "STUDENT") {
         this.editedItemStudent = Object.assign({}, item);
         delete this.editedItemStudent.id;
+      } else if (item.role === "CLASSROOM") {
+        this.editedItemClassRoom = Object.assign({}, item);
+        delete this.editedItemClassRoom.id;
       }
+      console.log(item);
       this.dataUs = item;
       this.dialog = true;
       this.dataId = item.id;
@@ -242,10 +304,22 @@ export default {
       const index = this.dataUser.indexOf(item);
       confirm("Are you sure you want to delete this item?") &&
         this.dataUser.splice(index, 1);
-      await db
-        .collection("user")
-        .doc(item.id)
-        .delete();
+      console.log(this.dataUser);
+      if (
+        this.userRole === "TEACHER" ||
+        this.userRole === "STUDENT" ||
+        this.userRole === ""
+      ) {
+        await db
+          .collection("user")
+          .doc(item.id)
+          .delete();
+      } else if (this.userRole === "CLASSROOM") {
+        await db
+          .collection("room")
+          .doc(item.id)
+          .delete();
+      }
     },
 
     close() {
@@ -255,6 +329,11 @@ export default {
           this.editedItemTeacher = Object.assign({}, this.defaultItemTeacher);
         } else if (this.dataUs.role === "STUDENT") {
           this.editedItemStudent = Object.assign({}, this.defaultItemStudent);
+        } else if (this.dataUs.role === "CLASSROOM") {
+          this.editedItemClassRoom = Object.assign(
+            {},
+            this.defaultItemClassRoom
+          );
         }
         this.editedIndex = -1;
       });
@@ -284,12 +363,25 @@ export default {
             .update({
               ...this.editedItemStudent
             });
+        } else if (this.dataUs.role === "CLASSROOM") {
+          Object.assign(
+            this.dataUser[this.editedIndex],
+            this.editedItemClassRoom
+          );
+          await db
+            .collection("room")
+            .doc(this.dataId)
+            .update({
+              ...this.editedItemClassRoom
+            });
         }
       } else {
         if (this.dataUs.role === "TEACHER") {
           this.dataUser.push(this.editedItemTeacher);
         } else if (this.dataUs.role === "STUDENT") {
           this.dataUser.push(this.editedItemStudent);
+        } else if (this.dataUs.role === "CLASSROOM") {
+          this.dataUser.push(this.editedItemClassRoom);
         }
       }
       this.close();
