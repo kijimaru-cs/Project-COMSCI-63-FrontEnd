@@ -271,7 +271,7 @@ export default {
       delete peerConnectionsAudio[id];
     });
   },
-  layout: "toolbar",
+  layout: "toolbarClassroom",
   methods: {
     onScroll(e) {
       this.offsetTop = e.target.scrollTop;

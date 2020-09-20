@@ -45,8 +45,7 @@
         large
         color="#00695C"
         @click="Signout"
-        >SIGNOUT</v-btn
-      >
+      >SIGNOUT</v-btn>
     </div>
   </div>
 </template>
@@ -76,10 +75,10 @@ export default {
     Signout() {
       auth
         .signOut()
-        .then(function() {
+        .then(function () {
           // Sign-out successful.
         })
-        .catch(function(error) {
+        .catch(function (error) {
           // An error happened.
         });
     },
@@ -88,7 +87,7 @@ export default {
       try {
         await auth.signInWithEmailAndPassword(this.email, this.password);
         const data = await new Promise((resolve, reject) =>
-          auth.onAuthStateChanged(async user => {
+          auth.onAuthStateChanged(async (user) => {
             resolve(user);
           })
         );
@@ -100,7 +99,7 @@ export default {
             .get();
           if (!snapshot.empty) {
             const [docs] = await Promise.all(
-              snapshot.docs.map(async doc => {
+              snapshot.docs.map(async (doc) => {
                 let item = {};
                 item = await doc.data();
                 item.id = doc.id;
@@ -110,7 +109,7 @@ export default {
             this.$store.dispatch("user/getDataByEmail", docs);
             if (docs) {
               if (docs.role === "STUDENT") {
-                this.$router.push("/teacher");
+                this.$router.push("/student");
               } else if (docs.role === "TEACHER") {
                 this.$router.push("/teacher");
               }
@@ -118,22 +117,27 @@ export default {
             } else {
               auth
                 .signOut()
-                .then(function() {
+                .then(function () {
                   // Sign-out successful.
                 })
-                .catch(function(error) {
+                .catch(function (error) {
                   // An error happened.
                 });
               console.log("LOGIN FAILED");
             }
           }
-          console.log("data", data);
+          // console.log("data", data);
         }
       } catch (error) {
         console.error(error);
       }
+<<<<<<< HEAD
+    },
+  },
+=======
     }
   }
+>>>>>>> master
 };
 </script>
 
