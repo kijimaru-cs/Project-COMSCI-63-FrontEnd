@@ -66,7 +66,6 @@
 import { mapGetters } from "vuex";
 import { db } from "@/lib/firebase";
 export default {
-<<<<<<< HEAD
   data: () => ({
     dialog: false,
     nameRoom: "",
@@ -74,7 +73,7 @@ export default {
     dataRoom: [],
     role: ""
   }),
-  // layout: "normal",
+  layout: "normal",
   mounted() {
     this.getRoom();
   },
@@ -129,6 +128,7 @@ export default {
               return item;
             })
           );
+
           console.log(this.dataRoom.idStudent);
         }
       } catch (error) {
@@ -142,10 +142,6 @@ export default {
       getUser: "user/getUser"
     })
   }
-=======
-  layout: "toolbar",
-  data: () => ({})
->>>>>>> master
 };
 </script>
 

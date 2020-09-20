@@ -16,25 +16,102 @@
           color="#00695C"
           @click="startCapture"
           :disabled="buttonStart"
-        >Start Share Screen</v-btn>
+          >Start Share Screen</v-btn
+        >
         <v-btn
           style="color: white"
           color="#00695C"
           @click="stopCapture"
           :disabled="buttonStop"
-        >Stop Share Screen</v-btn>
+          >Stop Share Screen</v-btn
+        >
+        <br />
       </center>
+      <v-row justify="center">
+        <v-dialog v-model="dialog" scrollable max-width="900px">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn class="mt-3" color="#00695C" dark v-bind="attrs" v-on="on">
+              Create Quize And Test
+            </v-btn>
+          </template>
+          <v-card>
+            <v-card-title>เเบบฝึกหัดหรือข้อสอบ</v-card-title>
+            <v-divider></v-divider>
+            <v-row
+              ><v-col>
+                <v-select
+                  v-model="Example"
+                  :items="choice"
+                  label="type"
+                ></v-select> </v-col
+            ></v-row>
+
+            <v-card-subtitle v-if="Example === 'CHOICE'" class="pt-3"
+              >ข้อที่ {{ countChoice + 1 }}</v-card-subtitle
+            >
+            <v-card-subtitle v-else-if="Example === 'WRITING'" class="pt-3"
+              >ข้อที่ {{ countWriting + 1 }}</v-card-subtitle
+            >
+            <v-col cols="10" sm="6" md="3">
+              <v-text-field
+                v-model="Quizetion"
+                label="Quetion"
+                outlined
+              ></v-text-field>
+              <a v-if="Example === 'CHOICE'">
+                <v-text-field
+                  v-model="choice1"
+                  label="Choice1"
+                  outlined
+                ></v-text-field>
+                <v-text-field
+                  v-model="choice2"
+                  label="Choice2"
+                  outlined
+                ></v-text-field>
+                <v-text-field
+                  v-model="choice3"
+                  label="Choice3"
+                  outlined
+                ></v-text-field>
+                <v-text-field
+                  v-model="choice4"
+                  label="Choice4"
+                  outlined
+                ></v-text-field>
+                <v-text-field
+                  v-model="answer"
+                  label="Answer"
+                  outlined
+                ></v-text-field>
+              </a>
+            </v-col>
+
+            <v-divider></v-divider>
+            <v-card-actions>
+              <v-btn color="blue darken-1" text @click="close">Close</v-btn>
+              <v-btn color="blue darken-1" text @click="save">Save</v-btn>
+              <v-btn color="blue datken-1" text @click="next">Next</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-row>
     </div>
     <div class="chatRoom">
       <v-row justify="center" align="start"></v-row>
-      <v-container id="scroll-target" style="max-height: 500px" class="overflow-y-auto">
+      <v-container
+        id="scroll-target"
+        style="max-height: 500px"
+        class="overflow-y-auto"
+      >
         <v-row
           class="p"
           v-scroll:#scroll-target="onScroll"
           align="start"
           justify="start"
           style="max-height: 600px"
-        >{{comment}}</v-row>
+          >{{ comment }}</v-row
+        >
       </v-container>
       <v-text-field
         label="Comment!!"
@@ -43,13 +120,14 @@
       ></v-text-field>
     </div>
   </div>
-</template> 
+</template>
 <script>
 import Vue from "vue";
 import * as firebase from "firebase/app";
 import { db } from "@/lib/firebase.js";
 import "firebase/auth";
 import Cookies from "js-cookie";
+import { isEmpty } from "lodash";
 const io = require("socket.io-client");
 // const socket = io("http://35.197.137.197:3001/");
 const socket = io("http://localhost:3001/");
@@ -58,19 +136,41 @@ const peerConnectionsAudio = {};
 const config = {
   iceServers: [
     {
-      urls: "stun:stun.l.google.com:19302",
-    },
-  ],
+      urls: "stun:stun.l.google.com:19302"
+    }
+  ]
 };
 var displayMediaOptions = {
   video: {
-    cursor: "always",
+    cursor: "always"
   },
-  audio: false,
+  audio: false
 };
 export default {
   data() {
     return {
+      countChoice: 0,
+      countWriting: 0,
+      Example: "",
+      Quizetion: "",
+      choice1: "",
+      choice2: "",
+      choice3: "",
+      choice4: "",
+      answer: "",
+      dataChoice: [
+        {
+          question: "",
+          choiceOne: "",
+          choiceTwo: "",
+          choiceThree: "",
+          choiceFour: "",
+          Answer: ""
+        }
+      ],
+      dataWriting: [{ question: "" }],
+      dialogm1: "",
+      dialog: false,
       buttonStart: false,
       buttonStop: true,
       offsetTop: 0,
@@ -81,10 +181,20 @@ export default {
       video: null,
       videoElem: null,
       audioElem: null,
+      choice: [
+        {
+          text: "choice",
+          value: "CHOICE"
+        },
+        {
+          text: "writing",
+          value: "WRITING"
+        }
+      ]
     };
   },
   mounted() {
-    firebase.auth().onAuthStateChanged((user) => {
+    firebase.auth().onAuthStateChanged(user => {
       if (user) {
         // User is signed in.
         // console.log(user.displayName);
@@ -98,7 +208,7 @@ export default {
         // ...
       }
     });
-    socket.on("sendMessage", (msg) => {
+    socket.on("sendMessage", msg => {
       this.comment = this.comment + msg.messageComment + "\n";
     });
     socket.on("answerVideo", (id, description) => {
@@ -107,42 +217,42 @@ export default {
     socket.on("answerAudio", (id, description) => {
       peerConnectionsAudio[id].setRemoteDescription(description);
     });
-    socket.on("watcherVideo", (id) => {
+    socket.on("watcherVideo", id => {
       const peerConnection = new RTCPeerConnection(config);
       peerConnectionsVideo[id] = peerConnection;
 
       let streamVideo = this.videoElem;
       streamVideo
         .getTracks()
-        .forEach((track) => peerConnection.addTrack(track, streamVideo));
-      peerConnection.onicecandidate = (event) => {
+        .forEach(track => peerConnection.addTrack(track, streamVideo));
+      peerConnection.onicecandidate = event => {
         if (event.candidate) {
           socket.emit("candidateVideo", id, event.candidate);
         }
       };
       peerConnection
         .createOffer()
-        .then((sdp) => peerConnection.setLocalDescription(sdp))
+        .then(sdp => peerConnection.setLocalDescription(sdp))
         .then(() => {
           socket.emit("offerVideo", id, peerConnection.localDescription);
         });
     });
-    socket.on("watcherAudio", (id) => {
+    socket.on("watcherAudio", id => {
       const peerConnection = new RTCPeerConnection(config);
       peerConnectionsAudio[id] = peerConnection;
 
       let streamAudio = this.audioElem;
       streamAudio
         .getTracks()
-        .forEach((track) => peerConnection.addTrack(track, streamAudio));
-      peerConnection.onicecandidate = (event) => {
+        .forEach(track => peerConnection.addTrack(track, streamAudio));
+      peerConnection.onicecandidate = event => {
         if (event.candidate) {
           socket.emit("candidateAudio", id, event.candidate);
         }
       };
       peerConnection
         .createOffer()
-        .then((sdp) => peerConnection.setLocalDescription(sdp))
+        .then(sdp => peerConnection.setLocalDescription(sdp))
         .then(() => {
           socket.emit("offerAudio", id, peerConnection.localDescription);
         });
@@ -154,7 +264,7 @@ export default {
       peerConnectionsAudio[id].addIceCandidate(new RTCIceCandidate(candidate));
     });
 
-    socket.on("disconnectPeer", (id) => {
+    socket.on("disconnectPeer", id => {
       peerConnectionsVideo[id].close();
       delete peerConnectionsVideo[id];
       peerConnectionsAudio[id].close();
@@ -169,26 +279,26 @@ export default {
     async startCapture() {
       navigator.mediaDevices
         .getDisplayMedia(displayMediaOptions)
-        .then((mediaStream) => {
+        .then(mediaStream => {
           this.videoElem = mediaStream;
           socket.emit("broadcasterVideo");
           (this.buttonStart = true), (this.buttonStop = false);
         });
       navigator.mediaDevices
         .getUserMedia({ audio: true })
-        .then((mediaStream) => {
+        .then(mediaStream => {
           this.audioElem = mediaStream;
           socket.emit("broadcasterAudio");
         })
-        .catch((err) => {
+        .catch(err => {
           console.error("Error: " + err);
         });
     },
 
     stopCapture() {
       (this.buttonStart = false), (this.buttonStop = true);
-      this.videoElem.getTracks().forEach((track) => track.stop());
-      this.audioElem.getTracks().forEach((track) => track.stop());
+      this.videoElem.getTracks().forEach(track => track.stop());
+      this.audioElem.getTracks().forEach(track => track.stop());
     },
     logout() {},
     sendMessage(messageComment) {
@@ -196,7 +306,88 @@ export default {
       socket.emit("sendMessage", { messageComment });
       this.messageComment = "";
     },
-  },
+    next() {
+      if (this.Example === "CHOICE") {
+        console.log("dataChoice", {
+          countChoice: this.countChoice,
+          question: this.Quizetion,
+          choiceOne: this.choice1,
+          choiceTwo: this.choice2,
+          choiceThree: this.choice3,
+          choiceFour: this.choice4,
+          answer: this.answer
+        });
+        this.dataChoice.push({
+          countChoice: this.countChoice,
+          question: this.Quizetion,
+          choiceOne: this.choice1,
+          choiceTwo: this.choice2,
+          choiceThree: this.choice3,
+          choiceFour: this.choice4,
+          answer: this.answer
+        });
+        this.countChoice = this.countChoice + 1;
+        this.Quizetion = "";
+        this.choice1 = "";
+        this.choice2 = "";
+        this.choice3 = "";
+        this.choice4 = "";
+        this.answer = "";
+      } else {
+        this.dataWriting.push({
+          countWriting: this.countWriting,
+          question: this.Quizetion
+        });
+        this.countWriting = this.countWriting + 1;
+        this.Quizetion = "";
+      }
+    },
+    close() {
+      this.dialog = false;
+      this.dataWriting = "";
+      this.dataChoice = "";
+      this.Quizetion = "";
+      this.choice1 = "";
+      this.choice2 = "";
+      this.choice3 = "";
+      this.choice4 = "";
+      this.answer = "";
+      this.countWriting = 0;
+      this.countChoice = 0;
+    },
+    async save() {
+      console.log("test", this.dataChoice);
+      try {
+        if (isEmpty(this.dataChoice) && isEmty(this.dataWriting)) {
+          await db.collection("exam").add({
+            ...this.dataWriting,
+            ...this.dataChoice
+          });
+        } else if (isEmpty(this.dataChoice)) {
+          await db.collection("exam").add({
+            ...this.dataChoice
+          });
+        } else if (isEmty(this.dataWriting)) {
+          await db.collection("exam").add({
+            ...this.dataWriting
+          });
+        }
+      } catch (error) {
+        console.log(error);
+      }
+      this.dialog = false;
+      this.dataWriting = "";
+      this.dataChoice = "";
+      this.Quizetion = "";
+      this.choice1 = "";
+      this.choice2 = "";
+      this.choice3 = "";
+      this.choice4 = "";
+      this.answer = "";
+      this.countWriting = 0;
+      this.countChoice = 0;
+    }
+  }
 };
 
 Cookies.set("user-email", "userEmail", { expires: 1 });
