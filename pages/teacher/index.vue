@@ -143,15 +143,9 @@ export default {
   },
   computed: {
     ...mapGetters({
-<<<<<<< HEAD
       getUser: "user/getUser",
     }),
   },
-=======
-      getUser: "user/getUser"
-    })
-  }
->>>>>>> master
 };
 </script>
 

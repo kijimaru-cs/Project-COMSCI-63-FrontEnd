@@ -7,12 +7,7 @@
     <br />
     <br />
     <p style="font-size:20px;color:#78909C">เข้าสู่ระบบห้องเรียน</p>
-    <v-text-field
-      label="E-mail"
-      :rules="rules"
-      hide-details="auto"
-      v-model="email"
-    ></v-text-field>
+    <v-text-field label="E-mail" :rules="rules" hide-details="auto" v-model="email"></v-text-field>
     <v-text-field
       v-model="password"
       :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
@@ -34,8 +29,7 @@
         large
         color="#00695C"
         @click="login"
-        >Login</v-btn
-      >
+      >Login</v-btn>
     </div>
     <div class="my-2">
       <v-btn
@@ -63,9 +57,9 @@ export default {
     error: "",
     dataCheck: {},
     rules: [
-      value => !!value || "Required.",
-      value => (value && value.length >= 3) || "Min 3 characters"
-    ]
+      (value) => !!value || "Required.",
+      (value) => (value && value.length >= 3) || "Min 3 characters",
+    ],
   }),
   layout: "toolbar",
   methods: {
@@ -131,13 +125,8 @@ export default {
       } catch (error) {
         console.error(error);
       }
-<<<<<<< HEAD
     },
   },
-=======
-    }
-  }
->>>>>>> master
 };
 </script>
 
