@@ -23,7 +23,47 @@
           @click="stopCapture"
           :disabled="buttonStop"
         >Stop Share Screen</v-btn>
+        <br />
       </center>
+      <v-row justify="center">
+        <v-dialog v-model="dialog" scrollable max-width="1000px">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn class="mt-3" color="#00695C" dark v-bind="attrs" v-on="on">Create Quize And Test</v-btn>
+          </template>
+          <v-card>
+            <v-card-title>เเบบฝึกหัดหรือข้อสอบ</v-card-title>
+            <v-divider></v-divider>
+            <v-row>
+              <v-col>
+                <v-select v-model="Example" :items="choice" label="type"></v-select>
+              </v-col>
+            </v-row>
+
+            <v-card-subtitle v-if="Example === 'CHOICE'" class="pt-3">ข้อที่ {{ countChoice + 1 }}</v-card-subtitle>
+            <v-card-subtitle
+              v-else-if="Example === 'WRITING'"
+              class="pt-3"
+            >ข้อที่ {{ countWriting + 1 }}</v-card-subtitle>
+            <v-col cols="10" sm="6" md="3">
+              <v-text-field v-model="Quizetion" label="Quetion" outlined></v-text-field>
+              <a v-if="Example === 'CHOICE'">
+                <v-text-field v-model="choice1" label="Choice1" outlined></v-text-field>
+                <v-text-field v-model="choice2" label="Choice2" outlined></v-text-field>
+                <v-text-field v-model="choice3" label="Choice3" outlined></v-text-field>
+                <v-text-field v-model="choice4" label="Choice4" outlined></v-text-field>
+                <v-text-field v-model="answer" label="Answer" outlined></v-text-field>
+              </a>
+            </v-col>
+
+            <v-divider></v-divider>
+            <v-card-actions>
+              <v-btn color="blue darken-1" text @click="close">Close</v-btn>
+              <v-btn color="blue darken-1" text @click="save">Save</v-btn>
+              <v-btn color="blue datken-1" text @click="next">Next</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-row>
     </div>
     <div class="chatRoom">
       <v-row justify="center" align="start"></v-row>
@@ -34,7 +74,7 @@
           align="start"
           justify="start"
           style="max-height: 600px"
-        >{{comment}}</v-row>
+        >{{ comment }}</v-row>
       </v-container>
       <v-text-field
         label="Comment!!"
@@ -43,13 +83,14 @@
       ></v-text-field>
     </div>
   </div>
-</template> 
+</template>
 <script>
 import Vue from "vue";
 import * as firebase from "firebase/app";
 import { db } from "@/lib/firebase.js";
 import "firebase/auth";
 import Cookies from "js-cookie";
+import { isEmpty } from "lodash";
 const io = require("socket.io-client");
 // const socket = io("http://35.197.137.197:3001/");
 const socket = io("http://localhost:3001/");
@@ -71,6 +112,28 @@ var displayMediaOptions = {
 export default {
   data() {
     return {
+      countChoice: 0,
+      countWriting: 0,
+      Example: "",
+      Quizetion: "",
+      choice1: "",
+      choice2: "",
+      choice3: "",
+      choice4: "",
+      answer: "",
+      dataChoice: [
+        {
+          question: "",
+          choiceOne: "",
+          choiceTwo: "",
+          choiceThree: "",
+          choiceFour: "",
+          Answer: "",
+        },
+      ],
+      dataWriting: [{ question: "" }],
+      dialogm1: "",
+      dialog: false,
       buttonStart: false,
       buttonStop: true,
       offsetTop: 0,
@@ -81,6 +144,16 @@ export default {
       video: null,
       videoElem: null,
       audioElem: null,
+      choice: [
+        {
+          text: "choice",
+          value: "CHOICE",
+        },
+        {
+          text: "writing",
+          value: "WRITING",
+        },
+      ],
     };
   },
   mounted() {
@@ -195,6 +268,87 @@ export default {
       messageComment = this.userEmail + " : " + messageComment;
       socket.emit("sendMessage", { messageComment });
       this.messageComment = "";
+    },
+    next() {
+      if (this.Example === "CHOICE") {
+        console.log("dataChoice", {
+          countChoice: this.countChoice,
+          question: this.Quizetion,
+          choiceOne: this.choice1,
+          choiceTwo: this.choice2,
+          choiceThree: this.choice3,
+          choiceFour: this.choice4,
+          answer: this.answer,
+        });
+        this.dataChoice.push({
+          countChoice: this.countChoice,
+          question: this.Quizetion,
+          choiceOne: this.choice1,
+          choiceTwo: this.choice2,
+          choiceThree: this.choice3,
+          choiceFour: this.choice4,
+          answer: this.answer,
+        });
+        this.countChoice = this.countChoice + 1;
+        this.Quizetion = "";
+        this.choice1 = "";
+        this.choice2 = "";
+        this.choice3 = "";
+        this.choice4 = "";
+        this.answer = "";
+      } else {
+        this.dataWriting.push({
+          countWriting: this.countWriting,
+          question: this.Quizetion,
+        });
+        this.countWriting = this.countWriting + 1;
+        this.Quizetion = "";
+      }
+    },
+    close() {
+      this.dialog = false;
+      this.dataWriting = "";
+      this.dataChoice = "";
+      this.Quizetion = "";
+      this.choice1 = "";
+      this.choice2 = "";
+      this.choice3 = "";
+      this.choice4 = "";
+      this.answer = "";
+      this.countWriting = 0;
+      this.countChoice = 0;
+    },
+    async save() {
+      console.log("test", this.dataChoice);
+      try {
+        if (isEmpty(this.dataChoice) && isEmty(this.dataWriting)) {
+          await db.collection("exam").add({
+            ...this.dataWriting,
+            ...this.dataChoice,
+          });
+        } else if (isEmpty(this.dataChoice)) {
+          await db.collection("exam").add({
+            ...this.dataChoice,
+          });
+        } else if (isEmty(this.dataWriting)) {
+          await db.collection("exam").add({
+            ...this.dataWriting,
+          });
+        }
+      } catch (error) {
+        console.log(error);
+      }
+      this.dialog = false;
+      this.dataWriting = "";
+      this.dataChoice = "";
+      this.Quizetion = "";
+      this.choice1 = "";
+      this.choice2 = "";
+      this.choice3 = "";
+      this.choice4 = "";
+      this.answer = "";
+      this.countWriting = 0;
+      this.countChoice = 0;
     },
   },
 };

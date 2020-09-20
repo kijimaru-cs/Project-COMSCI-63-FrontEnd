@@ -91,7 +91,11 @@ export default {
       if (!snapshot.empty) {
         snapshot.forEach((doc) => {
           this.idRoom = doc.id;
-          this.idStudent = doc.data().idStudent;
+          if (!doc.data().idStudent) {
+            this.idStudent = ["TestCode101"];
+          } else {
+            this.idStudent = doc.data().idStudent;
+          }
         });
       } else {
         console.log("JOIN Success");
