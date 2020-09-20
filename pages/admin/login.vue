@@ -33,6 +33,7 @@
         depressed
         large
         color="#00695C"
+        @keyup.enter="login"
         @click="login"
         >Login</v-btn
       >

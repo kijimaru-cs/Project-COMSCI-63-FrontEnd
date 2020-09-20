@@ -39,8 +39,7 @@
         large
         color="#00695C"
         @click="Signout"
-        >SIGNOUT</v-btn
-      >
+      >SIGNOUT</v-btn>
     </div>
   </div>
 </template>
@@ -70,10 +69,10 @@ export default {
     Signout() {
       auth
         .signOut()
-        .then(function() {
+        .then(function () {
           // Sign-out successful.
         })
-        .catch(function(error) {
+        .catch(function (error) {
           // An error happened.
         });
     },
@@ -81,9 +80,8 @@ export default {
     async login() {
       try {
         await auth.signInWithEmailAndPassword(this.email, this.password);
-<<<<<<< HEAD
         const data = await new Promise((resolve, reject) =>
-          auth.onAuthStateChanged(async user => {
+          auth.onAuthStateChanged(async (user) => {
             resolve(user);
           })
         );
@@ -95,7 +93,7 @@ export default {
             .get();
           if (!snapshot.empty) {
             const [docs] = await Promise.all(
-              snapshot.docs.map(async doc => {
+              snapshot.docs.map(async (doc) => {
                 let item = {};
                 item = await doc.data();
                 item.id = doc.id;
@@ -105,7 +103,7 @@ export default {
             this.$store.dispatch("user/getDataByEmail", docs);
             if (docs) {
               if (docs.role === "STUDENT") {
-                this.$router.push("/teacher");
+                this.$router.push("/student");
               } else if (docs.role === "TEACHER") {
                 this.$router.push("/teacher");
               }
@@ -113,69 +111,22 @@ export default {
             } else {
               auth
                 .signOut()
-                .then(function() {
+                .then(function () {
                   // Sign-out successful.
                 })
-                .catch(function(error) {
+                .catch(function (error) {
                   // An error happened.
                 });
               console.log("LOGIN FAILED");
             }
-=======
-        const _this = this;
-        auth.onAuthStateChanged(function (user) {
-          if (user) {
-            // User is signed in.
-            _this.findByEmail();
-            // console.log(user.displayName);
-            // console.log(user.email);
-            // console.log(user.emailVerified);
-            // console.log(user.uid);
-            self.userEmail = user.email;
-            // ...
-          } else {
-            // User is signed out.
-            // ...
->>>>>>> master
           }
-          console.log("data", data);
+          // console.log("data", data);
         }
       } catch (error) {
         console.error(error);
       }
-<<<<<<< HEAD
-    }
-  }
-=======
-    },
-    async findByEmail() {
-      const snapshot = await db
-        .collection("user")
-        .where("email", "==", this.email)
-        .limit(1)
-        .get();
-      if (snapshot.empty) return null;
-      const docs = await Promise.all(
-        snapshot.docs.map(async (doc) => {
-          let item = {};
-          item = await doc.data();
-          item.id = doc.id;
-          return item;
-        })
-      );
-      if (docs != null) {
-        if (docs[0].role === "STUDENT") {
-          this.$router.push("/student/classroom");
-        } else if (docs[0].role === "TEACHER") {
-          this.$router.push("/teacher/classroom");
-        }
-        console.log("LOGIN SUCCESS");
-      } else {
-        console.log("LOGIN FAILED");
-      }
     },
   },
->>>>>>> master
 };
 </script>
 
