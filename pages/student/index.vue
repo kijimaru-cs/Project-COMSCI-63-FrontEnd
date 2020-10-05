@@ -11,7 +11,12 @@
 
           <v-row>
             <v-col cols="12" sm="10">
-              <v-text-field class="pl-3" v-model="codeRoom" label="Code" outlined></v-text-field>
+              <v-text-field
+                class="pl-3"
+                v-model="codeRoom"
+                label="Code"
+                outlined
+              ></v-text-field>
             </v-col>
           </v-row>
           <v-card-actions>
@@ -41,7 +46,8 @@
                   large
                   color="#00695C"
                   @click="pushClassroom(data.code)"
-                >OPEN</v-btn>
+                  >OPEN</v-btn
+                >
               </v-row>
             </v-col>
           </v-row>
@@ -72,6 +78,7 @@ export default {
       if (user) {
         this.userEmail = user.email;
       } else {
+        this.$router.push("/");
       }
     });
 

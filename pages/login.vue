@@ -6,8 +6,13 @@
     <br />
     <br />
     <br />
-    <p style="font-size:20px;color:#78909C">เข้าสู่ระบบห้องเรียน</p>
-    <v-text-field label="E-mail" :rules="rules" hide-details="auto" v-model="email"></v-text-field>
+    <p style="font-size: 20px; color: #78909c">เข้าสู่ระบบห้องเรียน</p>
+    <v-text-field
+      label="E-mail"
+      :rules="rules"
+      hide-details="auto"
+      v-model="email"
+    ></v-text-field>
     <v-text-field
       v-model="password"
       :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
@@ -29,7 +34,8 @@
         large
         color="#00695C"
         @click="login"
-      >Login</v-btn>
+        >Login</v-btn
+      >
     </div>
     <div class="my-2">
       <v-btn
@@ -39,7 +45,8 @@
         large
         color="#00695C"
         @click="Signout"
-      >SIGNOUT</v-btn>
+        >SIGNOUT</v-btn
+      >
     </div>
   </div>
 </template>
@@ -62,16 +69,14 @@ export default {
     ],
   }),
   layout: "toolbar",
+  mounted() {
+    this.Signout();
+  },
   methods: {
-    doSave() {
-      alert("Username = " + this.username + "Password = " + this.password);
-    },
     Signout() {
       auth
         .signOut()
-        .then(function () {
-          // Sign-out successful.
-        })
+        .then(function () {})
         .catch(function (error) {
           // An error happened.
         });

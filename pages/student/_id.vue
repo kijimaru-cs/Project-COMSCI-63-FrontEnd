@@ -1,5 +1,12 @@
 <template>
   <div class="container">
+    <div class="statusRoom">
+      <h2>Online</h2>
+      <p v-for="data in this.onlineUsername" :key="data.index">
+        {{ data }}
+        <br />
+      </p>
+    </div>
     <div class="screenRoom">
       <center>
         <video
@@ -14,14 +21,19 @@
     </div>
     <div class="chatRoom">
       <v-row justify="center" align="start"></v-row>
-      <v-container id="scroll-target" style="max-height: 500px" class="overflow-y-auto">
+      <v-container
+        id="scroll-target"
+        style="max-height: 500px"
+        class="overflow-y-auto"
+      >
         <v-row
           class="p"
           v-scroll:#scroll-target="onScroll"
           align="start"
           justify="start"
           style="height: 500px"
-        >{{comment}}</v-row>
+          >{{ comment }}</v-row
+        >
       </v-container>
       <v-text-field
         label="Comment!!"
@@ -36,6 +48,7 @@
 import * as firebase from "firebase/app";
 import "firebase/auth";
 import Cookies from "js-cookie";
+import { db } from "@/lib/firebase.js";
 const io = require("socket.io-client");
 var peerConnectionVideo = null;
 var peerConnectionAudio = null;
@@ -52,29 +65,32 @@ export default {
   data() {
     return {
       userEmail: "",
+      username: "",
       videoElem: null,
       audioElem: null,
+      onlineUsername: "",
       comment: "",
       messageComment: "",
+      codeStudent: "",
     };
   },
+
   mounted() {
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
-        // User is signed in.
-        // console.log(user.displayName);
-        // console.log(user.email);
-        // console.log(user.emailVerified);
-        // console.log(user.uid);
         this.userEmail = user.email;
+        this.getUsername();
         // ...
       } else {
-        // User is signed out.
-        // ...
+        this.$router.push("/");
       }
     });
+    socket.emit("create", this.$route.params.id);
     socket.on("sendMessage", (msg) => {
       this.comment = this.comment + msg.messageComment + "\n";
+    });
+    socket.on("sendUsername", (msg) => {
+      this.onlineUsername = msg;
     });
     socket.on("offerVideo", (id, description) => {
       peerConnectionVideo = new RTCPeerConnection(config);
@@ -145,13 +161,34 @@ export default {
   },
   layout: "toolbarClassroom",
   methods: {
+    async getUsername() {
+      //get data=> username
+      const snapshot = await db
+        .collection("user")
+        .where("email", "==", this.userEmail)
+        .limit(1)
+        .get();
+      if (!snapshot.empty) {
+        snapshot.forEach((doc) => {
+          console.log(doc.data());
+          this.username = doc.data().username;
+          this.codeStudent = doc.data().code;
+          this.sendUsername(this.username);
+        });
+      } else {
+        console.log("Get Username Error");
+      }
+    },
     onScroll(e) {
       this.offsetTop = e.target.scrollTop;
     },
     sendMessage(messageComment) {
-      messageComment = this.userEmail + " : " + messageComment;
+      messageComment = this.username + " : " + messageComment;
       socket.emit("sendMessage", { messageComment });
       this.messageComment = "";
+    },
+    sendUsername(username) {
+      socket.emit("sendUsername", username + "(" + this.codeStudent + ")");
     },
     logout() {},
   },
@@ -194,5 +231,13 @@ Cookies.set("user-email", "userEmail", { expires: 1 });
 .p {
   color: green;
   white-space: pre-line;
+}
+.statusRoom {
+  justify-items: center;
+  align-items: center;
+  height: 100%;
+  width: 25%;
+  border: 1px solid;
+  padding: 10px;
 }
 </style>

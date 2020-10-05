@@ -1,5 +1,12 @@
 <template>
   <div class="container">
+    <div class="statusRoom">
+      <h2>Online</h2>
+      <p v-for="data in this.onlineUsername" :key="data.index">
+        {{ data }}
+        <br />
+      </p>
+    </div>
     <div class="screenRoom">
       <center>
         <video
@@ -16,42 +23,75 @@
           color="#00695C"
           @click="startCapture"
           :disabled="buttonStart"
-        >Start Share Screen</v-btn>
+          >Start Share Screen</v-btn
+        >
         <v-btn
           style="color: white"
           color="#00695C"
           @click="stopCapture"
           :disabled="buttonStop"
-        >Stop Share Screen</v-btn>
+          >Stop Share Screen</v-btn
+        >
         <br />
       </center>
       <v-row justify="center">
         <v-dialog v-model="dialog" scrollable max-width="1000px">
           <template v-slot:activator="{ on, attrs }">
-            <v-btn class="mt-3" color="#00695C" dark v-bind="attrs" v-on="on">Create Quize And Test</v-btn>
+            <v-btn class="mt-3" color="#00695C" dark v-bind="attrs" v-on="on"
+              >Create Quize And Test</v-btn
+            >
           </template>
           <v-card>
             <v-card-title>เเบบฝึกหัดหรือข้อสอบ</v-card-title>
             <v-divider></v-divider>
             <v-row>
               <v-col>
-                <v-select v-model="Example" :items="choice" label="type"></v-select>
+                <v-select
+                  v-model="Example"
+                  :items="choice"
+                  label="type"
+                ></v-select>
               </v-col>
             </v-row>
 
-            <v-card-subtitle v-if="Example === 'CHOICE'" class="pt-3">ข้อที่ {{ countChoice + 1 }}</v-card-subtitle>
-            <v-card-subtitle
-              v-else-if="Example === 'WRITING'"
-              class="pt-3"
-            >ข้อที่ {{ countWriting + 1 }}</v-card-subtitle>
+            <v-card-subtitle v-if="Example === 'CHOICE'" class="pt-3"
+              >ข้อที่ {{ countChoice + 1 }}</v-card-subtitle
+            >
+            <v-card-subtitle v-else-if="Example === 'WRITING'" class="pt-3"
+              >ข้อที่ {{ countWriting + 1 }}</v-card-subtitle
+            >
             <v-col cols="10" sm="6" md="3">
-              <v-text-field v-model="Quizetion" label="Quetion" outlined></v-text-field>
+              <v-text-field
+                v-model="Quizetion"
+                label="Quetion"
+                outlined
+              ></v-text-field>
               <a v-if="Example === 'CHOICE'">
-                <v-text-field v-model="choice1" label="Choice1" outlined></v-text-field>
-                <v-text-field v-model="choice2" label="Choice2" outlined></v-text-field>
-                <v-text-field v-model="choice3" label="Choice3" outlined></v-text-field>
-                <v-text-field v-model="choice4" label="Choice4" outlined></v-text-field>
-                <v-text-field v-model="answer" label="Answer" outlined></v-text-field>
+                <v-text-field
+                  v-model="choice1"
+                  label="Choice1"
+                  outlined
+                ></v-text-field>
+                <v-text-field
+                  v-model="choice2"
+                  label="Choice2"
+                  outlined
+                ></v-text-field>
+                <v-text-field
+                  v-model="choice3"
+                  label="Choice3"
+                  outlined
+                ></v-text-field>
+                <v-text-field
+                  v-model="choice4"
+                  label="Choice4"
+                  outlined
+                ></v-text-field>
+                <v-text-field
+                  v-model="answer"
+                  label="Answer"
+                  outlined
+                ></v-text-field>
               </a>
             </v-col>
 
@@ -67,14 +107,19 @@
     </div>
     <div class="chatRoom">
       <v-row justify="center" align="start"></v-row>
-      <v-container id="scroll-target" style="max-height: 500px" class="overflow-y-auto">
+      <v-container
+        id="scroll-target"
+        style="max-height: 500px"
+        class="overflow-y-auto"
+      >
         <v-row
           class="p"
           v-scroll:#scroll-target="onScroll"
           align="start"
           justify="start"
           style="max-height: 600px"
-        >{{ comment }}</v-row>
+          >{{ comment }}</v-row
+        >
       </v-container>
       <v-text-field
         label="Comment!!"
@@ -139,6 +184,8 @@ export default {
       offsetTop: 0,
       user: "",
       userEmail: "",
+      username: "",
+      onlineUsername: "",
       comment: "",
       messageComment: "",
       video: null,
@@ -159,20 +206,18 @@ export default {
   mounted() {
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
-        // User is signed in.
-        // console.log(user.displayName);
-        // console.log(user.email);
-        // console.log(user.emailVerified);
-        // console.log(user.uid);
         this.userEmail = user.email;
-        // ...
+        this.getUsername();
       } else {
-        // User is signed out.
-        // ...
+        this.$router.push("/");
       }
     });
+    socket.emit("create", this.$route.params.id);
     socket.on("sendMessage", (msg) => {
       this.comment = this.comment + msg.messageComment + "\n";
+    });
+    socket.on("sendUsername", (msg) => {
+      this.onlineUsername = msg;
     });
     socket.on("answerVideo", (id, description) => {
       peerConnectionsVideo[id].setRemoteDescription(description);
@@ -226,7 +271,6 @@ export default {
     socket.on("candidateAudio", (id, candidate) => {
       peerConnectionsAudio[id].addIceCandidate(new RTCIceCandidate(candidate));
     });
-
     socket.on("disconnectPeer", (id) => {
       peerConnectionsVideo[id].close();
       delete peerConnectionsVideo[id];
@@ -234,8 +278,25 @@ export default {
       delete peerConnectionsAudio[id];
     });
   },
-  layout: "toolbarClassroom",
+  layout: "toolbarClassroomTeacher",
   methods: {
+    async getUsername() {
+      //get data=> username
+      const snapshot = await db
+        .collection("user")
+        .where("email", "==", this.userEmail)
+        .limit(1)
+        .get();
+      if (!snapshot.empty) {
+        snapshot.forEach((doc) => {
+          console.log(doc.data());
+          this.username = doc.data().username;
+          this.sendUsername(this.username);
+        });
+      } else {
+        console.log("Get Username Error");
+      }
+    },
     onScroll(e) {
       this.offsetTop = e.target.scrollTop;
     },
@@ -265,9 +326,12 @@ export default {
     },
     logout() {},
     sendMessage(messageComment) {
-      messageComment = this.userEmail + " : " + messageComment;
+      messageComment = this.username + " : " + messageComment;
       socket.emit("sendMessage", { messageComment });
       this.messageComment = "";
+    },
+    sendUsername(username) {
+      socket.emit("sendUsername", username);
     },
     next() {
       if (this.Example === "CHOICE") {
@@ -378,10 +442,18 @@ Cookies.set("user-email", "userEmail", { expires: 1 });
   justify-items: center;
   align-items: center;
   height: 100%;
-  width: 25%;
+  width: 30%;
   border: 1px solid;
   padding: 10px;
   box-shadow: 15px 15px 15px #00695c;
+}
+.statusRoom {
+  justify-items: center;
+  align-items: center;
+  height: 100%;
+  width: 25%;
+  border: 1px solid;
+  padding: 10px;
 }
 .buttonChat {
   position: relative;
