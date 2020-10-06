@@ -37,17 +37,6 @@
         >Login</v-btn
       >
     </div>
-    <div class="my-2">
-      <v-btn
-        class="center"
-        style="color: white"
-        depressed
-        large
-        color="#00695C"
-        @click="Signout"
-        >SIGNOUT</v-btn
-      >
-    </div>
   </div>
 </template>
 

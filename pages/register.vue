@@ -66,7 +66,7 @@
         depressed
         large
         color="#00695C"
-        @click="register"
+        @click="validate"
         >Register</v-btn
       >
     </div>
@@ -75,8 +75,8 @@
 
 <script>
 import { db, auth } from "@/lib/firebase.js";
-import { toLower } from "lodash";
-
+import { toLower, isEmpty } from "lodash";
+var isNumber = require("lodash.isnumber");
 export default {
   data: () => ({
     show1: false,
@@ -91,6 +91,7 @@ export default {
     rulesCode: [
       (value) => !!value || "Required.",
       (value) => (value && value.length <= 10) || "Max 10 characters",
+      (value) => Number(value) === parseInt(value) || "ต้องเป็นตัวเลขเท่านั้น",
     ],
     rules: [
       (value) => !!value || "Required.",
@@ -115,32 +116,131 @@ export default {
   layout: "toolbar",
   mounted() {},
   methods: {
+    async validate() {
+      if (this.userRole === "STUDENT") {
+        if (
+          !isEmpty(this.code) &&
+          !isEmpty(this.username) &&
+          !isEmpty(this.password) &&
+          !isEmpty(this.email)
+        )
+          if (
+            Number(this.code) === parseInt(this.code) &&
+            this.code.length == 10
+          ) {
+            if (this.password.length >= 8) {
+              try {
+                await auth.createUserWithEmailAndPassword(
+                  this.email,
+                  this.password
+                );
+                try {
+                  if (this.userRole === "TEACHER") {
+                    await db.collection("user").add({
+                      username: this.username,
+                      password: this.password,
+                      email: toLower(this.email),
+                      role: this.userRole,
+                      subject: this.subject,
+                    });
+                  } else if (this.userRole === "STUDENT") {
+                    await db.collection("user").add({
+                      code: this.code,
+                      username: this.username,
+                      password: this.password,
+                      email: toLower(this.email),
+                      role: this.userRole,
+                    });
+                  }
+                } catch (error) {
+                  alert(error);
+                }
+              } catch (error) {
+                alert(error);
+              }
+              alert("สมัครเสร็จสิ้น");
+              this.$router.push("/login");
+            } else {
+              alert("กรุณากรอก password มากกว่า 7 ตัว");
+            }
+          } else {
+            alert("กรุณากรอก code เป็นตัวเลขและให้ครบ10ตัว");
+          }
+      } else {
+        if (
+          !isEmpty(this.username) &&
+          !isEmpty(this.password) &&
+          !isEmpty(this.email) &&
+          !isEmpty(this.subject)
+        ) {
+          if (this.username.length > 2 && this.password.length > 7) {
+            try {
+              await auth.createUserWithEmailAndPassword(
+                this.email,
+                this.password
+              );
+              try {
+                if (this.userRole === "TEACHER") {
+                  await db.collection("user").add({
+                    username: this.username,
+                    password: this.password,
+                    email: toLower(this.email),
+                    role: this.userRole,
+                    subject: this.subject,
+                  });
+                } else if (this.userRole === "STUDENT") {
+                  await db.collection("user").add({
+                    code: this.code,
+                    username: this.username,
+                    password: this.password,
+                    email: toLower(this.email),
+                    role: this.userRole,
+                  });
+                }
+              } catch (error) {
+                alert(error);
+              }
+            } catch (error) {
+              alert(error);
+            }
+            alert("สมัครเสร็จสิ้น");
+            this.$router.push("/login");
+          } else {
+            alert(
+              "กรุณากรอก password มากกว่า 7 ตัว หรือ username มากกว่า 3 ตัว"
+            );
+          }
+        } else {
+          alert("กรุณากรอกข้อมูลให้ครบทุกช่อง");
+        }
+      }
+    },
     doSave() {
       alert("Username = " + this.username + "Password = " + this.password);
     },
     async register() {
       try {
         await auth.createUserWithEmailAndPassword(this.email, this.password);
-      } catch (error) {
-        console.log(error);
-      }
-      try {
-        if (this.userRole === "TEACHER") {
-          await db.collection("user").add({
-            username: this.username,
-            password: this.password,
-            email: toLower(this.email),
-            role: this.userRole,
-            subject: this.subject,
-          });
-        } else if (this.userRole === "STUDENT") {
-          await db.collection("user").add({
-            code: this.code,
-            username: this.username,
-            password: this.password,
-            email: toLower(this.email),
-            role: this.userRole,
-          });
+        try {
+          if (this.userRole === "TEACHER") {
+            await db.collection("user").add({
+              username: this.username,
+              password: this.password,
+              email: toLower(this.email),
+              role: this.userRole,
+              subject: this.subject,
+            });
+          } else if (this.userRole === "STUDENT") {
+            await db.collection("user").add({
+              code: this.code,
+              username: this.username,
+              password: this.password,
+              email: toLower(this.email),
+              role: this.userRole,
+            });
+          }
+        } catch (error) {
+          console.log(error);
         }
       } catch (error) {
         console.log(error);
