@@ -11,7 +11,12 @@
 
           <v-row>
             <v-col cols="12" sm="10">
-              <v-text-field class="pl-3" v-model="codeRoom" label="Code" outlined></v-text-field>
+              <v-text-field
+                class="pl-3"
+                v-model="codeRoom"
+                label="Code"
+                outlined
+              ></v-text-field>
             </v-col>
           </v-row>
           <v-card-actions>
@@ -41,7 +46,8 @@
                   large
                   color="#00695C"
                   @click="pushClassroom(data.code)"
-                >OPEN</v-btn>
+                  >OPEN</v-btn
+                >
               </v-row>
             </v-col>
           </v-row>
@@ -64,11 +70,11 @@ export default {
     userIdStudent: "",
     idStudent: "",
     userEmail: "",
-    idRoom: "",
+    idRoom: ""
   }),
-  // layout: "normal",
+  layout: "normal",
   mounted() {
-    firebase.auth().onAuthStateChanged((user) => {
+    firebase.auth().onAuthStateChanged(user => {
       if (user) {
         this.userEmail = user.email;
       } else {
@@ -80,6 +86,7 @@ export default {
   methods: {
     pushClassroom(id) {
       this.$router.push(`/student/${id}`);
+      this.$store.dispatch("classroom/getClassRoom", id);
     },
     async createRoom() {
       //get room id and get idStudent all
@@ -89,7 +96,7 @@ export default {
         .limit(1)
         .get();
       if (!snapshot.empty) {
-        snapshot.forEach((doc) => {
+        snapshot.forEach(doc => {
           this.idRoom = doc.id;
           if (!doc.data().idStudent) {
             this.idStudent = ["TestCode101"];
@@ -107,7 +114,7 @@ export default {
         .limit(1)
         .get();
       if (!snapshot2.empty) {
-        snapshot2.forEach((doc) => {
+        snapshot2.forEach(doc => {
           this.userIdStudent = doc.id;
         });
       } else {
@@ -115,9 +122,12 @@ export default {
       this.idStudent.push(this.userIdStudent);
       let unique = [...new Set(this.idStudent)];
       //Add room
-      await db.collection("room").doc(this.idRoom).update({
-        idStudent: unique,
-      });
+      await db
+        .collection("room")
+        .doc(this.idRoom)
+        .update({
+          idStudent: unique
+        });
       this.codeRoom = "";
       const _this = this;
       _this.getRoom();
@@ -140,7 +150,7 @@ export default {
           .get();
         if (!snapshot.empty) {
           this.dataRoom = await Promise.all(
-            snapshot.docs.map(async (doc) => {
+            snapshot.docs.map(async doc => {
               let item = {};
               item = await doc.data();
               item.id = doc.id;
@@ -152,13 +162,13 @@ export default {
         console.log(this.getUser.id);
         console.log(error);
       }
-    },
+    }
   },
   computed: {
     ...mapGetters({
-      getUser: "user/getUser",
-    }),
-  },
+      getUser: "user/getUser"
+    })
+  }
 };
 </script>
 
