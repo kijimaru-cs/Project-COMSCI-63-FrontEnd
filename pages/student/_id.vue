@@ -16,7 +16,7 @@
           autoplay="autoplay"
           controls
         ></video>
-        <audio :srcObject.prop="audioElem" controls></audio>
+        <audio :srcObject.prop="audioElem" controls autoplay></audio>
       </center>
     </div>
     <div class="chatRoom">

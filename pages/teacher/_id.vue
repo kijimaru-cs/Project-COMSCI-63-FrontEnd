@@ -16,7 +16,7 @@
           autoplay="autoplay"
           controls
         ></video>
-        <audio :srcObject.prop="audioElem" controls></audio>
+        <!-- <audio :srcObject.prop="" autoplay></audio> -->
         <br />
         <v-btn
           style="color: white"
@@ -31,6 +31,20 @@
           @click="stopCapture"
           :disabled="buttonStop"
           >Stop Share Screen</v-btn
+        >
+        <v-btn
+          style="color: white"
+          color="#00695C"
+          @click="MicOn"
+          :disabled="MicStart"
+          >Mic On <v-icon dark right> mdi-microphone </v-icon></v-btn
+        >
+        <v-btn
+          style="color: white"
+          color="#00695C"
+          @click="MicOff"
+          :disabled="MicStop"
+          >Mic Off</v-btn
         >
         <br />
       </center>
@@ -181,6 +195,8 @@ export default {
       dialog: false,
       buttonStart: false,
       buttonStop: true,
+      MicStart: false,
+      MicStop: true,
       offsetTop: 0,
       user: "",
       userEmail: "",
@@ -308,20 +324,25 @@ export default {
           socket.emit("broadcasterVideo");
           (this.buttonStart = true), (this.buttonStop = false);
         });
+    },
+    async MicOn() {
       navigator.mediaDevices
         .getUserMedia({ audio: true })
         .then((mediaStream) => {
           this.audioElem = mediaStream;
           socket.emit("broadcasterAudio");
+          (this.MicStart = true), (this.MicStop = false);
         })
         .catch((err) => {
           console.error("Error: " + err);
         });
     },
-
     stopCapture() {
       (this.buttonStart = false), (this.buttonStop = true);
       this.videoElem.getTracks().forEach((track) => track.stop());
+    },
+    MicOff() {
+      (this.MicStart = false), (this.MicStop = true);
       this.audioElem.getTracks().forEach((track) => track.stop());
     },
     logout() {},
