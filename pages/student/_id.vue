@@ -16,7 +16,22 @@
           autoplay="autoplay"
           controls
         ></video>
-        <audio :srcObject.prop="audioElem" controls autoplay></audio>
+        <audio :srcObject.prop="audioElem2" controls ></audio>
+        <br />
+        <v-btn
+          style="color: white"
+          color="#3949AB"
+          @click="MicOn"
+          :disabled="MicStart"
+          >Mic On <v-icon dark right> mdi-microphone </v-icon></v-btn
+        >
+        <v-btn
+          style="color: white"
+          color="#3949AB"
+          @click="MicOff"
+          :disabled="MicStop"
+          >Mic Off <v-icon dark right> mdi-microphone-off</v-icon></v-btn
+        >
       </center>
     </div>
     <div class="chatRoom">
@@ -26,13 +41,13 @@
         style="max-height: 500px"
         class="overflow-y-auto"
       >
-        <v-row
+        <v-rowz
           class="p"
           v-scroll:#scroll-target="onScroll"
           align="start"
           justify="start"
           style="height: 500px"
-          >{{ comment }}</v-row
+          >{{ comment }}</v-rowz
         >
       </v-container>
       <v-text-field
@@ -68,10 +83,13 @@ export default {
       username: "",
       videoElem: null,
       audioElem: null,
+      audioElem2: null,
       onlineUsername: "",
       comment: "",
       messageComment: "",
       codeStudent: "",
+      MicStart: false,
+      MicStop: true,
     };
   },
 
@@ -110,21 +128,21 @@ export default {
         }
       };
     });
-    socket.on("offerAudio", (id, description) => {
+    socket.on("offerAudioReceive", (id, description) => {
       peerConnectionAudio = new RTCPeerConnection(config);
       peerConnectionAudio
         .setRemoteDescription(description)
         .then(() => peerConnectionAudio.createAnswer())
         .then((sdp) => peerConnectionAudio.setLocalDescription(sdp))
         .then(() => {
-          socket.emit("answerAudio", id, peerConnectionAudio.localDescription);
+          socket.emit("answerAudioReceive", id, peerConnectionAudio.localDescription);
         });
       peerConnectionAudio.ontrack = (event) => {
-        this.audioElem = event.streams[0];
+        this.audioElem2 = event.streams[0];
       };
       peerConnectionAudio.onicecandidate = (event) => {
         if (event.candidate) {
-          socket.emit("candidateAudio", id, event.candidate);
+          socket.emit("candidateAudioReceive", id, event.candidate);
         }
       };
     });
@@ -133,22 +151,49 @@ export default {
         .addIceCandidate(new RTCIceCandidate(candidate))
         .catch((e) => console.error(e));
     });
-    socket.on("candidateAudio", (id, candidate) => {
+    socket.on("candidateAudioReceive", (id, candidate) => {
       peerConnectionAudio
         .addIceCandidate(new RTCIceCandidate(candidate))
         .catch((e) => console.error(e));
     });
 
-    socket.on("connect", () => {
-      socket.emit("watcherVideo");
-      socket.emit("watcherAudio");
-    });
+    // socket.on("connect", () => {
+    //   socket.emit("watcherVideo");
+    //   socket.emit("watcherAudio");
+    // });
 
     socket.on("broadcasterVideo", () => {
       socket.emit("watcherVideo");
     });
-    socket.on("broadcasterAudio", () => {
-      socket.emit("watcherAudio");
+    socket.on("broadcasterAudioReceive", () => {
+      socket.emit("watcherAudioReceive");
+    });
+
+    socket.on("watcherAudioSend2", (id) => {
+      const peerConnection = new RTCPeerConnection(config);
+      peerConnectionAudio[id] = peerConnection;
+
+      let streamAudio = this.audioElem;
+      streamAudio
+        .getTracks()
+        .forEach((track) => peerConnection.addTrack(track, streamAudio));
+      peerConnection.onicecandidate = (event) => {
+        if (event.candidate) {
+          socket.emit("candidateAudioSend2", id, event.candidate);
+        }
+      };
+      peerConnection
+        .createOffer()
+        .then((sdp) => peerConnection.setLocalDescription(sdp))
+        .then(() => {
+          socket.emit("offerAudioSend2", id, peerConnection.localDescription);
+        });
+    });
+    socket.on("answerAudioSend2", (id, description) => {
+      peerConnectionAudio[id].setRemoteDescription(description);
+    });
+    socket.on("candidateAudioSend2", (id, candidate) => {
+      peerConnectionAudio[id].addIceCandidate(new RTCIceCandidate(candidate));
     });
 
     socket.on("disconnectPeer", () => {
@@ -191,6 +236,23 @@ export default {
       socket.emit("sendUsername", username + "(" + this.codeStudent + ")");
     },
     logout() {},
+    async MicOn() {
+      navigator.mediaDevices
+        .getUserMedia({ audio: true })
+        .then((mediaStream) => {
+          this.audioElem = mediaStream;
+          socket.emit("broadcasterAudioSend2");
+          (this.MicStart = true), (this.MicStop = false);
+        })
+        .catch((err) => {
+          console.error("Error: " + err);
+        });
+    },
+
+    MicOff() {
+      (this.MicStart = false), (this.MicStop = true);
+      this.audioElem.getTracks().forEach((track) => track.stop());
+    },
   },
 };
 

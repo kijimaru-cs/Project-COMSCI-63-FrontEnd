@@ -16,35 +16,40 @@
           autoplay="autoplay"
           controls
         ></video>
-        <!-- <audio :srcObject.prop="" autoplay></audio> -->
+        <audio :srcObject.prop="audioElem2" controls></audio>
         <br />
         <v-btn
           style="color: white"
           color="#00695C"
           @click="startCapture"
           :disabled="buttonStart"
-          >Start Share Screen</v-btn
+          >Start Share Screen<v-icon dark right>
+            mdi-monitor-multiple
+          </v-icon></v-btn
         >
         <v-btn
           style="color: white"
           color="#00695C"
           @click="stopCapture"
           :disabled="buttonStop"
-          >Stop Share Screen</v-btn
+          >Stop Share Screen<v-icon dark right>
+            mdi-monitor-multiple
+          </v-icon></v-btn
         >
+        <br />
         <v-btn
           style="color: white"
-          color="#00695C"
+          color="#3949AB"
           @click="MicOn"
           :disabled="MicStart"
           >Mic On <v-icon dark right> mdi-microphone </v-icon></v-btn
         >
         <v-btn
           style="color: white"
-          color="#00695C"
+          color="#3949AB"
           @click="MicOff"
           :disabled="MicStop"
-          >Mic Off</v-btn
+          >Mic Off <v-icon dark right> mdi-microphone-off</v-icon></v-btn
         >
         <br />
       </center>
@@ -153,8 +158,8 @@ import { isEmpty } from "lodash";
 const io = require("socket.io-client");
 // const socket = io("http://35.197.137.197:3001/");
 const socket = io("http://localhost:3001/");
-const peerConnectionsVideo = {};
-const peerConnectionsAudio = {};
+var peerConnectionsVideo = {};
+var peerConnectionAudio = {};
 const config = {
   iceServers: [
     {
@@ -168,6 +173,7 @@ var displayMediaOptions = {
   },
   audio: false,
 };
+var intervalMic = null;
 export default {
   data() {
     return {
@@ -207,6 +213,7 @@ export default {
       video: null,
       videoElem: null,
       audioElem: null,
+      audioElem2: null,
       choice: [
         {
           text: "choice",
@@ -238,8 +245,8 @@ export default {
     socket.on("answerVideo", (id, description) => {
       peerConnectionsVideo[id].setRemoteDescription(description);
     });
-    socket.on("answerAudio", (id, description) => {
-      peerConnectionsAudio[id].setRemoteDescription(description);
+    socket.on("answerAudioSend", (id, description) => {
+      peerConnectionAudio[id].setRemoteDescription(description);
     });
     socket.on("watcherVideo", (id) => {
       const peerConnection = new RTCPeerConnection(config);
@@ -261,9 +268,9 @@ export default {
           socket.emit("offerVideo", id, peerConnection.localDescription);
         });
     });
-    socket.on("watcherAudio", (id) => {
+    socket.on("watcherAudioSend", (id) => {
       const peerConnection = new RTCPeerConnection(config);
-      peerConnectionsAudio[id] = peerConnection;
+      peerConnectionAudio[id] = peerConnection;
 
       let streamAudio = this.audioElem;
       streamAudio
@@ -271,27 +278,55 @@ export default {
         .forEach((track) => peerConnection.addTrack(track, streamAudio));
       peerConnection.onicecandidate = (event) => {
         if (event.candidate) {
-          socket.emit("candidateAudio", id, event.candidate);
+          socket.emit("candidateAudioSend", id, event.candidate);
         }
       };
       peerConnection
         .createOffer()
         .then((sdp) => peerConnection.setLocalDescription(sdp))
         .then(() => {
-          socket.emit("offerAudio", id, peerConnection.localDescription);
+          socket.emit("offerAudioSend", id, peerConnection.localDescription);
         });
     });
     socket.on("candidateVideo", (id, candidate) => {
       peerConnectionsVideo[id].addIceCandidate(new RTCIceCandidate(candidate));
     });
-    socket.on("candidateAudio", (id, candidate) => {
-      peerConnectionsAudio[id].addIceCandidate(new RTCIceCandidate(candidate));
+    socket.on("candidateAudioSend", (id, candidate) => {
+      peerConnectionAudio[id].addIceCandidate(new RTCIceCandidate(candidate));
     });
+
+    socket.on("broadcasterAudioReceive2", () => {
+      socket.emit("watcherAudioReceive2");
+    });
+    socket.on("candidateAudioReceive2", (id, candidate) => {
+      peerConnectionAudio
+        .addIceCandidate(new RTCIceCandidate(candidate))
+        .catch((e) => console.error(e));
+    });
+    socket.on("offerAudioReceive2", (id, description) => {
+      peerConnectionAudio = new RTCPeerConnection(config);
+      peerConnectionAudio
+        .setRemoteDescription(description)
+        .then(() => peerConnectionAudio.createAnswer())
+        .then((sdp) => peerConnectionAudio.setLocalDescription(sdp))
+        .then(() => {
+          socket.emit("answerAudioReceive2", id, peerConnectionAudio.localDescription);
+        });
+      peerConnectionAudio.ontrack = (event) => {
+        this.audioElem2 = event.streams[0];
+      };
+      peerConnectionAudio.onicecandidate = (event) => {
+        if (event.candidate) {
+          socket.emit("candidateAudioReceive2", id, event.candidate);
+        }
+      };
+    });
+
     socket.on("disconnectPeer", (id) => {
       peerConnectionsVideo[id].close();
       delete peerConnectionsVideo[id];
-      peerConnectionsAudio[id].close();
-      delete peerConnectionsAudio[id];
+      peerConnectionAudio[id].close();
+      delete peerConnectionAudio[id];
     });
   },
   layout: "toolbarClassroomTeacher",
@@ -330,7 +365,7 @@ export default {
         .getUserMedia({ audio: true })
         .then((mediaStream) => {
           this.audioElem = mediaStream;
-          socket.emit("broadcasterAudio");
+          socket.emit("broadcasterAudioSend");
           (this.MicStart = true), (this.MicStop = false);
         })
         .catch((err) => {
