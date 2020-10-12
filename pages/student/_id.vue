@@ -65,8 +65,8 @@ import "firebase/auth";
 import Cookies from "js-cookie";
 import { db } from "@/lib/firebase.js";
 const io = require("socket.io-client");
-var peerConnectionVideo = null;
-var peerConnectionAudio = null;
+var peerConnectionVideo = {};
+var peerConnectionAudio = {};
 const config = {
   iceServers: [
     {
@@ -157,11 +157,6 @@ export default {
         .catch((e) => console.error(e));
     });
 
-    // socket.on("connect", () => {
-    //   socket.emit("watcherVideo");
-    //   socket.emit("watcherAudio");
-    // });
-
     socket.on("broadcasterVideo", () => {
       socket.emit("watcherVideo");
     });
@@ -172,7 +167,6 @@ export default {
     socket.on("watcherAudioSend2", (id) => {
       const peerConnection = new RTCPeerConnection(config);
       peerConnectionAudio[id] = peerConnection;
-
       let streamAudio = this.audioElem;
       streamAudio
         .getTracks()
@@ -195,6 +189,34 @@ export default {
     socket.on("candidateAudioSend2", (id, candidate) => {
       peerConnectionAudio[id].addIceCandidate(new RTCIceCandidate(candidate));
     });
+
+    socket.on("broadcasterAudioReceive2", () => {
+      socket.emit("watcherAudioReceive2");
+    });
+    socket.on("candidateAudioReceive2", (id, candidate) => {
+      peerConnectionAudio
+        .addIceCandidate(new RTCIceCandidate(candidate))
+        .catch((e) => console.error(e));
+    });
+    socket.on("offerAudioReceive2", (id, description) => {
+      peerConnectionAudio = new RTCPeerConnection(config);
+      peerConnectionAudio
+        .setRemoteDescription(description)
+        .then(() => peerConnectionAudio.createAnswer())
+        .then((sdp) => peerConnectionAudio.setLocalDescription(sdp))
+        .then(() => {
+          socket.emit("answerAudioReceive2", id, peerConnectionAudio.localDescription);
+        });
+      peerConnectionAudio.ontrack = (event) => {
+        this.audioElem2 = event.streams[0];
+      };
+      peerConnectionAudio.onicecandidate = (event) => {
+        if (event.candidate) {
+          socket.emit("candidateAudioReceive2", id, event.candidate);
+        }
+      };
+    });
+
 
     socket.on("disconnectPeer", () => {
       peerConnectionVideo.close();
