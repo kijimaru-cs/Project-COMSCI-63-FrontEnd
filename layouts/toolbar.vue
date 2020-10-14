@@ -17,8 +17,8 @@
         <v-icon>mdi-dots-vertical</v-icon>
       </v-btn>
     </v-app-bar>
-    <v-main class="main">
-      <v-container >
+    <v-main>
+      <v-container v-if="isUser">
         <nuxt />
       </v-container>
     </v-main>
