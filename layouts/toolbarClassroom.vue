@@ -4,7 +4,7 @@
       <v-app-bar-nav-icon>
         <div>
           <a href="/">
-            <img src="KU_Logo_PNG.png" style="width: 60px; height: 60px" />
+            <img src="KU_Logo_PNG.png" style="width:60px;height:60px;" />
           </a>
         </div>
       </v-app-bar-nav-icon>
@@ -14,11 +14,11 @@
       <br />
       <v-spacer></v-spacer>
       <v-btn icon>
-        <v-icon @click="Signout">mdi-logout-variant</v-icon>
+        <v-icon>mdi-dots-vertical</v-icon>
       </v-btn>
     </v-app-bar>
     <v-main>
-      <v-container>
+      <v-container v-if="isUser">
         <nuxt />
       </v-container>
     </v-main>
@@ -29,12 +29,13 @@
 import { mapGetters } from "vuex";
 import firebase from "firebase/app";
 import "firebase/auth";
+import { isEmpty } from "lodash";
 export default {
   data: () => ({}),
 
   async mounted() {
     const data = await new Promise((resolve, reject) =>
-      firebase.auth().onAuthStateChanged(async (user) => {
+      firebase.auth().onAuthStateChanged(async user => {
         resolve(user);
       })
     );
@@ -48,7 +49,7 @@ export default {
         .get();
       if (!snapshot.empty) {
         const [docs] = await Promise.all(
-          snapshot.docs.map(async (doc) => {
+          snapshot.docs.map(async doc => {
             let item = {};
             item = await doc.data();
             item.id = doc.id;
@@ -57,20 +58,27 @@ export default {
         );
         this.$store.dispatch("user/getDataByEmail", docs);
       }
+      console.log("data", data);
     }
-  },
-  methods: {
-    Signout() {
-      firebase
-        .auth()
-        .signOut()
-        .then(function () {
-          this.$router.push("/");
-        })
-        .catch(function (error) {
-          // An error happened.
-        });
-    },
+    if (this.$route.params.id) {
+      const snapshot = await firebase
+        .firestore()
+        .collection("room")
+        .where("code", "==", this.$route.params.id)
+        .limit(1)
+        .get();
+      if (!snapshot.empty) {
+        const [docs] = await Promise.all(
+          snapshot.docs.map(async doc => {
+            let item = {};
+            item = await doc.data();
+            item.id = doc.id;
+            return item;
+          })
+        );
+        this.$store.dispatch("classroom/getClassRoom", docs);
+      }
+    }
   },
   watch: {
     // getUser() {
@@ -83,9 +91,12 @@ export default {
   },
   computed: {
     ...mapGetters({
-      getUser: "user/getUser",
+      getUser: "user/getUser"
     }),
-  },
+    isUser() {
+      return !isEmpty(this.getUser);
+    }
+  }
 };
 </script>
 
