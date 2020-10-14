@@ -122,37 +122,37 @@
                   <v-text-field
                     v-model="fixQuestion[index]"
                     :label="data.question"
-                    :value="data.question"
+                    :value="data.question[index]"
                   ></v-text-field>
                   <div v-if="data.type === 'CHOICE'">
                     <v-text-field
                       v-model="fixChoiceOne[index]"
                       :label="data.choiceOne"
-                      :value="data.choiceOne"
+                      :value="data.choiceOne[index]"
                     >
                     </v-text-field>
                     <v-text-field
                       v-model="fixChoiceTwo[index]"
                       :label="data.choiceTwo"
-                      :value="data.choiceTwo"
+                      :value="data.choiceTwo[index]"
                     >
                     </v-text-field>
                     <v-text-field
                       v-model="fixChoiceThree[index]"
                       :label="data.choiceThree"
-                      :value="data.choiceThree"
+                      :value="data.choiceThree[index]"
                     >
                     </v-text-field>
                     <v-text-field
                       v-model="fixChoiceFour[index]"
                       :label="data.choiceFour"
-                      :value="data.choiceFour"
+                      :value="data.choiceFour[index]"
                     >
                     </v-text-field>
                     <v-text-field
                       v-model="fixAnswer[index]"
                       :label="data.answer"
-                      :value="data.answer"
+                      :value="data.answer[index]"
                     >
                     </v-text-field>
                   </div>
@@ -341,6 +341,7 @@ export default {
     async updateData() {
       console.log("NameTitle", this.fixNameTitle);
       console.log("question", this.fixQuestion);
+      console.log("choiceOne", this.fixChoiceOne);
       // let x;
       //  for (x = 0; x < this.dataExample.length; x++) {
       //  if()
