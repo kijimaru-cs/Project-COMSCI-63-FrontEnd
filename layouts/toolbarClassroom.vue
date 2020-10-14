@@ -35,7 +35,7 @@ export default {
 
   async mounted() {
     const data = await new Promise((resolve, reject) =>
-      firebase.auth().onAuthStateChanged(async (user) => {
+      firebase.auth().onAuthStateChanged(async user => {
         resolve(user);
       })
     );
@@ -49,7 +49,7 @@ export default {
         .get();
       if (!snapshot.empty) {
         const [docs] = await Promise.all(
-          snapshot.docs.map(async (doc) => {
+          snapshot.docs.map(async doc => {
             let item = {};
             item = await doc.data();
             item.id = doc.id;
@@ -84,13 +84,13 @@ export default {
       firebase
         .auth()
         .signOut()
-        .then(function () {
+        .then(function() {
           this.$router.push("/");
         })
-        .catch(function (error) {
+        .catch(function(error) {
           // An error happened.
         });
-    },
+    }
   },
   watch: {
     // getUser() {
@@ -109,7 +109,6 @@ export default {
       return !isEmpty(this.getUser);
     }
   }
-
 };
 </script>
 

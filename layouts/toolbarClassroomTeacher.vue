@@ -34,12 +34,12 @@ import firebase from "firebase/app";
 import "firebase/auth";
 export default {
   data: () => ({
-    idRoom: "",
+    idRoom: ""
   }),
 
   async mounted() {
     const data = await new Promise((resolve, reject) =>
-      firebase.auth().onAuthStateChanged(async (user) => {
+      firebase.auth().onAuthStateChanged(async user => {
         resolve(user);
       })
     );
@@ -53,7 +53,7 @@ export default {
         .get();
       if (!snapshot.empty) {
         const [docs] = await Promise.all(
-          snapshot.docs.map(async (doc) => {
+          snapshot.docs.map(async doc => {
             let item = {};
             item = await doc.data();
             item.id = doc.id;
@@ -64,23 +64,43 @@ export default {
       }
     }
     this.idRoom = this.$route.params.id;
+
+    if (this.$route.params.id) {
+      const snapshot = await firebase
+        .firestore()
+        .collection("room")
+        .where("code", "==", this.$route.params.id)
+        .limit(1)
+        .get();
+      if (!snapshot.empty) {
+        const [docs] = await Promise.all(
+          snapshot.docs.map(async doc => {
+            let item = {};
+            item = await doc.data();
+            item.id = doc.id;
+            return item;
+          })
+        );
+        this.$store.dispatch("classroom/getClassRoom", docs);
+      }
+    }
   },
   methods: {
     Signout() {
       firebase
         .auth()
         .signOut()
-        .then(function () {
+        .then(function() {
           socket.close();
           this.$router.push("/");
         })
-        .catch(function (error) {
+        .catch(function(error) {
           // An error happened.
         });
     },
     pushEditClassroom(id) {
       this.$router.push(`/teacher/room/${id}`);
-    },
+    }
   },
   watch: {
     // getUser() {
@@ -94,9 +114,9 @@ export default {
 
   computed: {
     ...mapGetters({
-      getUser: "user/getUser",
-    }),
-  },
+      getUser: "user/getUser"
+    })
+  }
 };
 </script>
 

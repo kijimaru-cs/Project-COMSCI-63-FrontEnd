@@ -112,6 +112,8 @@ export default {
       } else if (this.textButton === "SHOW EXAM") {
         this.textButton = "EDIT EXAM";
       }
+      console.log("User", this.getUser.role);
+      console.log("ClassRoom", this.getClass);
       this.$store.dispatch("exam/getMode", this.textButton);
       console.log("textButton", this.textButton);
     }

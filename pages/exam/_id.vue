@@ -70,6 +70,19 @@
         :disabled="saveDisable"
         >Submit</v-btn
       >
+      <template>
+        <div class="text-center">
+          <v-dialog v-model="displayCard" width="500">
+            <v-card>
+              <v-card-title class="headline grey lighten-2"> </v-card-title>
+              คะเเนน
+              <v-card-text> คะเเนนที่ทำได้{{ correctChoice }} </v-card-text>
+              <v-divider></v-divider>
+              <v-btn elevation="2" @click="closeDisplayCard">Ok</v-btn>
+            </v-card>
+          </v-dialog>
+        </div>
+      </template>
     </v-col>
     <v-col v-else>
       <template v-if="getMode === 'EDIT EXAM'">
@@ -183,6 +196,7 @@ export default {
     mode: [],
     search: "",
     head: [],
+    displayCard: false,
     headerScore: [
       {
         text: "รหัสนิสิต",
@@ -278,6 +292,7 @@ export default {
         score: this.correctChoice,
         answerWrite
       });
+      this.displayCard = true;
     },
     textAdd(index) {
       let x;
@@ -337,6 +352,10 @@ export default {
     },
     async print() {
       window.print();
+    },
+    async closeDisplayCard() {
+      this.displayCard = false;
+      this.$router.push(`/exam`);
     },
     async updateData() {
       console.log("NameTitle", this.fixNameTitle);
