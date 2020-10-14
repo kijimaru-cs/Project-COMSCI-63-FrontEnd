@@ -18,7 +18,7 @@
       </v-btn>
     </v-app-bar>
     <v-main>
-      <v-container v-if="isUser">
+      <v-container>
         <nuxt />
       </v-container>
     </v-main>
@@ -92,10 +92,7 @@ export default {
   computed: {
     ...mapGetters({
       getUser: "user/getUser"
-    }),
-    isUser() {
-      return !isEmpty(this.getUser);
-    }
+    })
   }
 };
 </script>
