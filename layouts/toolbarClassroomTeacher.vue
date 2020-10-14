@@ -14,11 +14,14 @@
       <br />
       <v-spacer></v-spacer>
       <v-btn icon>
+        <v-icon @click="pushEditClassroom(idRoom)">mdi-account-edit</v-icon>
+      </v-btn>
+      <v-btn icon>
         <v-icon @click="Signout">mdi-logout-variant</v-icon>
       </v-btn>
     </v-app-bar>
     <v-main>
-      <v-container v-if="isUser">
+      <v-container>
         <nuxt />
       </v-container>
     </v-main>
@@ -29,9 +32,10 @@
 import { mapGetters } from "vuex";
 import firebase from "firebase/app";
 import "firebase/auth";
-import { isEmpty } from "lodash";
 export default {
-  data: () => ({}),
+  data: () => ({
+    idRoom: "",
+  }),
 
   async mounted() {
     const data = await new Promise((resolve, reject) =>
@@ -59,25 +63,7 @@ export default {
         this.$store.dispatch("user/getDataByEmail", docs);
       }
     }
-    if (this.$route.params.id) {
-      const snapshot = await firebase
-        .firestore()
-        .collection("room")
-        .where("code", "==", this.$route.params.id)
-        .limit(1)
-        .get();
-      if (!snapshot.empty) {
-        const [docs] = await Promise.all(
-          snapshot.docs.map(async doc => {
-            let item = {};
-            item = await doc.data();
-            item.id = doc.id;
-            return item;
-          })
-        );
-        this.$store.dispatch("classroom/getClassRoom", docs);
-      }
-    }
+    this.idRoom = this.$route.params.id;
   },
   methods: {
     Signout() {
@@ -85,11 +71,15 @@ export default {
         .auth()
         .signOut()
         .then(function () {
+          socket.close();
           this.$router.push("/");
         })
         .catch(function (error) {
           // An error happened.
         });
+    },
+    pushEditClassroom(id) {
+      this.$router.push(`/teacher/room/${id}`);
     },
   },
   watch: {
@@ -101,14 +91,12 @@ export default {
     //   }
     // }
   },
+
   computed: {
     ...mapGetters({
-      getUser: "user/getUser"
+      getUser: "user/getUser",
     }),
-    isUser() {
-      return !isEmpty(this.getUser);
-    }
-  }
+  },
 };
 </script>
 
