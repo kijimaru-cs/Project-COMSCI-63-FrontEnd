@@ -1,23 +1,26 @@
 <template>
   <v-app light>
-    <v-app-bar app class="pa-0 ma-0" style="background-color: #00796B">
+    <v-app-bar app class="pa-0 ma-0">
       <v-app-bar-nav-icon>
         <div>
           <a href="/">
-            <img src="KU_Logo_PNG.png" style="width:60px;height:60px;border:2px solid #fff;backgroundColor: white" />
+            <img src="KU_Logo_PNG.png" style="width: 60px; height: 60px" />
           </a>
         </div>
       </v-app-bar-nav-icon>
       <v-toolbar-title>
-        <h1 style="color: white;text-shadow: 2px 2px black;">Classroom</h1>
+        <h1>Classroom:{{ this.$route.params.id }}</h1>
       </v-toolbar-title>
       <br />
       <v-spacer></v-spacer>
       <v-btn icon>
-        <v-icon>mdi-dots-vertical</v-icon>
+        <v-icon @click="pushEditClassroom(idRoom)">mdi-account-edit</v-icon>
+      </v-btn>
+      <v-btn icon>
+        <v-icon @click="Signout">mdi-logout-variant</v-icon>
       </v-btn>
     </v-app-bar>
-    <v-main class="main">
+    <v-main>
       <v-container>
         <nuxt />
       </v-container>
@@ -29,13 +32,14 @@
 import { mapGetters } from "vuex";
 import firebase from "firebase/app";
 import "firebase/auth";
-import { isEmpty } from "lodash";
 export default {
-  data: () => ({}),
+  data: () => ({
+    idRoom: "",
+  }),
 
-  async created() {
+  async mounted() {
     const data = await new Promise((resolve, reject) =>
-      firebase.auth().onAuthStateChanged(async user => {
+      firebase.auth().onAuthStateChanged(async (user) => {
         resolve(user);
       })
     );
@@ -49,7 +53,7 @@ export default {
         .get();
       if (!snapshot.empty) {
         const [docs] = await Promise.all(
-          snapshot.docs.map(async doc => {
+          snapshot.docs.map(async (doc) => {
             let item = {};
             item = await doc.data();
             item.id = doc.id;
@@ -58,8 +62,25 @@ export default {
         );
         this.$store.dispatch("user/getDataByEmail", docs);
       }
-      console.log("data", data);
     }
+    this.idRoom = this.$route.params.id;
+  },
+  methods: {
+    Signout() {
+      firebase
+        .auth()
+        .signOut()
+        .then(function () {
+          socket.close();
+          this.$router.push("/");
+        })
+        .catch(function (error) {
+          // An error happened.
+        });
+    },
+    pushEditClassroom(id) {
+      this.$router.push(`/teacher/room/${id}`);
+    },
   },
   watch: {
     // getUser() {
@@ -70,24 +91,18 @@ export default {
     //   }
     // }
   },
+
   computed: {
     ...mapGetters({
-      getUser: "user/getUser"
+      getUser: "user/getUser",
     }),
-    isUser() {
-      return !isEmpty(this.getUser);
-    }
-  }
+  },
 };
 </script>
 
 <style scoped>
 .con-center {
   text-align: center;
-}
-
-.main{
-  background-color: #B2DFDB;
 }
 
 .toolbar {
