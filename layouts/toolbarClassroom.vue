@@ -4,7 +4,7 @@
       <v-app-bar-nav-icon>
         <div>
           <a href="/">
-            <img src="KU_Logo_PNG.png" style="width:60px;height:60px;" />
+            <img src="KU_Logo_PNG.png" style="width: 60px; height: 60px" />
           </a>
         </div>
       </v-app-bar-nav-icon>
@@ -14,7 +14,7 @@
       <br />
       <v-spacer></v-spacer>
       <v-btn icon>
-        <v-icon>mdi-dots-vertical</v-icon>
+        <v-icon @click="Signout">mdi-logout-variant</v-icon>
       </v-btn>
     </v-app-bar>
     <v-main>
@@ -35,7 +35,7 @@ export default {
 
   async mounted() {
     const data = await new Promise((resolve, reject) =>
-      firebase.auth().onAuthStateChanged(async user => {
+      firebase.auth().onAuthStateChanged(async (user) => {
         resolve(user);
       })
     );
@@ -49,7 +49,7 @@ export default {
         .get();
       if (!snapshot.empty) {
         const [docs] = await Promise.all(
-          snapshot.docs.map(async doc => {
+          snapshot.docs.map(async (doc) => {
             let item = {};
             item = await doc.data();
             item.id = doc.id;
@@ -58,7 +58,6 @@ export default {
         );
         this.$store.dispatch("user/getDataByEmail", docs);
       }
-      console.log("data", data);
     }
     if (this.$route.params.id) {
       const snapshot = await firebase
@@ -80,6 +79,19 @@ export default {
       }
     }
   },
+  methods: {
+    Signout() {
+      firebase
+        .auth()
+        .signOut()
+        .then(function () {
+          this.$router.push("/");
+        })
+        .catch(function (error) {
+          // An error happened.
+        });
+    },
+  },
   watch: {
     // getUser() {
     //   if (this.getUser) {
@@ -97,6 +109,7 @@ export default {
       return !isEmpty(this.getUser);
     }
   }
+
 };
 </script>
 
