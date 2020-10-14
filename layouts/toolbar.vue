@@ -18,7 +18,7 @@
       </v-btn>
     </v-app-bar>
     <v-main>
-      <v-container v-if="isUser">
+      <v-container >
         <nuxt />
       </v-container>
     </v-main>
