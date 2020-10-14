@@ -1,5 +1,6 @@
 <template>
   <div class="container">
+<<<<<<< HEAD
     <div class="statusRoom">
       <h1>Online</h1>
       <p v-for="data in this.onlineUsername" :key="data.index">
@@ -7,6 +8,8 @@
         <br />
       </p>
     </div>
+=======
+>>>>>>> master
     <div class="screenRoom">
       <center>
         <video
@@ -16,23 +19,9 @@
           autoplay="autoplay"
           controls
         ></video>
-        <audio :srcObject.prop="audioElem2" controls ></audio>
-        <br />
-        <v-btn
-          v-if="MicStart == false"
-          style="color: white"
-          color="#3949AB"
-          @click="MicOn"
-          :disabled="MicStart"
-          >Mic On <v-icon dark right> mdi-microphone </v-icon></v-btn
-        >
-        <v-btn
-          v-if="MicStart == true"
-          style="color: white"
-          color="#FF5252"
-          @click="MicOff"
-          :disabled="!MicStart"
-          >Mic Off <v-icon dark right> mdi-microphone-off</v-icon></v-btn
+        <audio :srcObject.prop="audioElem" controls></audio><br />
+        <v-btn style="color: white" color="#00695C" @click="nextDisplayExam"
+          >Quiz and Exam</v-btn
         >
       </center>
     </div>
@@ -43,13 +32,13 @@
         style="max-height: 500px"
         class="overflow-y-auto"
       >
-        <v-rowz
+        <v-row
           class="p"
           v-scroll:#scroll-target="onScroll"
           align="start"
           justify="start"
           style="height: 500px"
-          >{{ comment }}</v-rowz
+          >{{ comment }}</v-row
         >
       </v-container>
       <v-text-field
@@ -59,22 +48,22 @@
       ></v-text-field>
     </div>
   </div>
-</template> 
+</template>
 
 <script>
+import { mapGetters } from "vuex";
 import * as firebase from "firebase/app";
 import "firebase/auth";
 import Cookies from "js-cookie";
-import { db } from "@/lib/firebase.js";
-var io = require("socket.io-client");
-var peerConnectionVideo = {};
-var peerConnectionAudio = {};
+const io = require("socket.io-client");
+var peerConnectionVideo = null;
+var peerConnectionAudio = null;
 const config = {
   iceServers: [
     {
-      urls: "stun:stun.l.google.com:19302",
-    },
-  ],
+      urls: "stun:stun.l.google.com:19302"
+    }
+  ]
 };
 // const socket = io("http://35.197.137.197:3001/");
 const socket = io("http://localhost:3001/");
@@ -82,142 +71,88 @@ export default {
   data() {
     return {
       userEmail: "",
-      username: "",
       videoElem: null,
       audioElem: null,
-      audioElem2: null,
-      onlineUsername: "",
       comment: "",
-      messageComment: "",
-      codeStudent: "",
-      MicStart: false,
+      messageComment: ""
     };
   },
-
   mounted() {
-    firebase.auth().onAuthStateChanged((user) => {
+    firebase.auth().onAuthStateChanged(user => {
       if (user) {
+        // User is signed in.
+        // console.log(user.displayName);
+        // console.log(user.email);
+        // console.log(user.emailVerified);
+        // console.log(user.uid);
         this.userEmail = user.email;
-        this.getUsername();
         // ...
       } else {
-        this.$router.push("/");
+        // User is signed out.
+        // ...
       }
     });
-    socket.emit("create", this.$route.params.id);
-    socket.on("sendMessage", (msg) => {
+    socket.on("sendMessage", msg => {
       this.comment = this.comment + msg.messageComment + "\n";
-    });
-    socket.on("sendUsername", (msg) => {
-      this.onlineUsername = msg;
     });
     socket.on("offerVideo", (id, description) => {
       peerConnectionVideo = new RTCPeerConnection(config);
       peerConnectionVideo
         .setRemoteDescription(description)
         .then(() => peerConnectionVideo.createAnswer())
-        .then((sdp) => peerConnectionVideo.setLocalDescription(sdp))
+        .then(sdp => peerConnectionVideo.setLocalDescription(sdp))
         .then(() => {
           socket.emit("answerVideo", id, peerConnectionVideo.localDescription);
         });
-      peerConnectionVideo.ontrack = (event) => {
+      peerConnectionVideo.ontrack = event => {
         this.videoElem = event.streams[0];
       };
-      peerConnectionVideo.onicecandidate = (event) => {
+      peerConnectionVideo.onicecandidate = event => {
         if (event.candidate) {
           socket.emit("candidateVideo", id, event.candidate);
         }
       };
     });
-    socket.on("offerAudioReceive", (id, description) => {
+    socket.on("offerAudio", (id, description) => {
       peerConnectionAudio = new RTCPeerConnection(config);
       peerConnectionAudio
         .setRemoteDescription(description)
         .then(() => peerConnectionAudio.createAnswer())
-        .then((sdp) => peerConnectionAudio.setLocalDescription(sdp))
+        .then(sdp => peerConnectionAudio.setLocalDescription(sdp))
         .then(() => {
-          socket.emit("answerAudioReceive", id, peerConnectionAudio.localDescription);
+          socket.emit("answerAudio", id, peerConnectionAudio.localDescription);
         });
-      peerConnectionAudio.ontrack = (event) => {
-        this.audioElem2 = event.streams[0];
+      peerConnectionAudio.ontrack = event => {
+        this.audioElem = event.streams[0];
       };
-      peerConnectionAudio.onicecandidate = (event) => {
+      peerConnectionAudio.onicecandidate = event => {
         if (event.candidate) {
-          socket.emit("candidateAudioReceive", id, event.candidate);
+          socket.emit("candidateAudio", id, event.candidate);
         }
       };
     });
     socket.on("candidateVideo", (id, candidate) => {
       peerConnectionVideo
         .addIceCandidate(new RTCIceCandidate(candidate))
-        .catch((e) => console.error(e));
+        .catch(e => console.error(e));
     });
-    socket.on("candidateAudioReceive", (id, candidate) => {
+    socket.on("candidateAudio", (id, candidate) => {
       peerConnectionAudio
         .addIceCandidate(new RTCIceCandidate(candidate))
-        .catch((e) => console.error(e));
+        .catch(e => console.error(e));
+    });
+
+    socket.on("connect", () => {
+      socket.emit("watcherVideo");
+      socket.emit("watcherAudio");
     });
 
     socket.on("broadcasterVideo", () => {
       socket.emit("watcherVideo");
     });
-    socket.on("broadcasterAudioReceive", () => {
-      socket.emit("watcherAudioReceive");
+    socket.on("broadcasterAudio", () => {
+      socket.emit("watcherAudio");
     });
-
-    socket.on("watcherAudioSend2", (id) => {
-      const peerConnection = new RTCPeerConnection(config);
-      peerConnectionAudio[id] = peerConnection;
-      let streamAudio = this.audioElem;
-      streamAudio
-        .getTracks()
-        .forEach((track) => peerConnection.addTrack(track, streamAudio));
-      peerConnection.onicecandidate = (event) => {
-        if (event.candidate) {
-          socket.emit("candidateAudioSend2", id, event.candidate);
-        }
-      };
-      peerConnection
-        .createOffer()
-        .then((sdp) => peerConnection.setLocalDescription(sdp))
-        .then(() => {
-          socket.emit("offerAudioSend2", id, peerConnection.localDescription);
-        });
-    });
-    socket.on("answerAudioSend2", (id, description) => {
-      peerConnectionAudio[id].setRemoteDescription(description);
-    });
-    socket.on("candidateAudioSend2", (id, candidate) => {
-      peerConnectionAudio[id].addIceCandidate(new RTCIceCandidate(candidate));
-    });
-
-    socket.on("broadcasterAudioReceive2", () => {
-      socket.emit("watcherAudioReceive2");
-    });
-    socket.on("candidateAudioReceive2", (id, candidate) => {
-      peerConnectionAudio
-        .addIceCandidate(new RTCIceCandidate(candidate))
-        .catch((e) => console.error(e));
-    });
-    socket.on("offerAudioReceive2", (id, description) => {
-      peerConnectionAudio = new RTCPeerConnection(config);
-      peerConnectionAudio
-        .setRemoteDescription(description)
-        .then(() => peerConnectionAudio.createAnswer())
-        .then((sdp) => peerConnectionAudio.setLocalDescription(sdp))
-        .then(() => {
-          socket.emit("answerAudioReceive2", id, peerConnectionAudio.localDescription);
-        });
-      peerConnectionAudio.ontrack = (event) => {
-        this.audioElem2 = event.streams[0];
-      };
-      peerConnectionAudio.onicecandidate = (event) => {
-        if (event.candidate) {
-          socket.emit("candidateAudioReceive2", id, event.candidate);
-        }
-      };
-    });
-
 
     socket.on("disconnectPeer", () => {
       peerConnectionVideo.close();
@@ -229,60 +164,24 @@ export default {
   },
   layout: "toolbarClassroom",
   methods: {
-    async getUsername() {
-      //get data=> username
-      const snapshot = await db
-        .collection("user")
-        .where("email", "==", this.userEmail)
-        .limit(1)
-        .get();
-      if (!snapshot.empty) {
-        snapshot.forEach((doc) => {
-          console.log(doc.data());
-          this.username = doc.data().username;
-          this.codeStudent = doc.data().code;
-          this.sendUsername(this.username);
-        });
-      } else {
-        console.log("Get Username Error");
-      }
-    },
     onScroll(e) {
       this.offsetTop = e.target.scrollTop;
     },
     sendMessage(messageComment) {
-      messageComment = this.username + " : " + messageComment;
+      messageComment = this.userEmail + " : " + messageComment;
       socket.emit("sendMessage", { messageComment });
       this.messageComment = "";
     },
-    sendUsername(username) {
-      if(!username.empty){
-        socket.emit("sendUsername", username + "(" + this.codeStudent + ")");
-      }
-      else{
-        this.$router.push("/");
-      }
-      
-    },
     logout() {},
-    async MicOn() {
-      navigator.mediaDevices
-        .getUserMedia({ audio: true })
-        .then((mediaStream) => {
-          this.audioElem = mediaStream;
-          socket.emit("broadcasterAudioSend2");
-          (this.MicStart = true)
-        })
-        .catch((err) => {
-          console.error("Error: " + err);
-        });
-    },
-
-    MicOff() {
-      (this.MicStart = false)
-      this.audioElem.getTracks().forEach((track) => track.stop());
-    },
+    nextDisplayExam() {
+      this.$router.push(`/exam`);
+    }
   },
+  computed: {
+    ...mapGetters({
+      getClass: "classroom/getClass"
+    })
+  }
 };
 
 Cookies.set("user-email", "userEmail", { expires: 1 });
@@ -322,13 +221,5 @@ Cookies.set("user-email", "userEmail", { expires: 1 });
 .p {
   color: green;
   white-space: pre-line;
-}
-.statusRoom {
-  justify-items: center;
-  align-items: center;
-  height: 100%;
-  width: 25%;
-  border: 1px solid;
-  padding: 10px;
 }
 </style>
