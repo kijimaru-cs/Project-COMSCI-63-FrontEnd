@@ -14,6 +14,9 @@
       <br />
       <v-spacer></v-spacer>
       <v-btn icon>
+        <v-icon @click="pushEditClassroom(idRoom)">mdi-account-edit</v-icon>
+      </v-btn>
+      <v-btn icon>
         <v-icon @click="Signout">mdi-logout-variant</v-icon>
       </v-btn>
     </v-app-bar>
@@ -30,7 +33,9 @@ import { mapGetters } from "vuex";
 import firebase from "firebase/app";
 import "firebase/auth";
 export default {
-  data: () => ({}),
+  data: () => ({
+    idRoom: "",
+  }),
 
   async mounted() {
     const data = await new Promise((resolve, reject) =>
@@ -58,6 +63,7 @@ export default {
         this.$store.dispatch("user/getDataByEmail", docs);
       }
     }
+    this.idRoom = this.$route.params.id;
   },
   methods: {
     Signout() {
@@ -65,11 +71,15 @@ export default {
         .auth()
         .signOut()
         .then(function () {
+          socket.close();
           this.$router.push("/");
         })
         .catch(function (error) {
           // An error happened.
         });
+    },
+    pushEditClassroom(id) {
+      this.$router.push(`/teacher/room/${id}`);
     },
   },
   watch: {
@@ -81,6 +91,7 @@ export default {
     //   }
     // }
   },
+
   computed: {
     ...mapGetters({
       getUser: "user/getUser",

@@ -1,7 +1,7 @@
 <template>
   <v-app light>
     <v-main>
-      <v-container v-if="isUser">
+      <v-container>
         <nuxt />
       </v-container>
     </v-main>
@@ -12,11 +12,10 @@
 import { mapGetters } from "vuex";
 import firebase from "firebase/app";
 import "firebase/auth";
-import { isEmpty } from "lodash";
 export default {
   data: () => ({}),
 
-  async created() {
+  async mounted() {
     const data = await new Promise((resolve, reject) =>
       firebase.auth().onAuthStateChanged(async user => {
         resolve(user);
@@ -56,10 +55,7 @@ export default {
   computed: {
     ...mapGetters({
       getUser: "user/getUser"
-    }),
-    isUser() {
-      return !isEmpty(this.getUser);
-    }
+    })
   }
 };
 </script>
