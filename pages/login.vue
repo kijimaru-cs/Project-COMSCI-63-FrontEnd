@@ -6,14 +6,8 @@
     <br />
     <br />
     <br />
-    <p class="input" style="font-size: 30px; color: #78909c">เข้าสู่ระบบห้องเรียน</p>
-    <div class="input">
-    <v-text-field
-      label="E-mail"
-      :rules="rules"
-      hide-details="auto"
-      v-model="email"
-    ></v-text-field>
+    <p style="font-size:20px;color:#78909C">เข้าสู่ระบบห้องเรียน</p>
+    <v-text-field label="E-mail" :rules="rules" hide-details="auto" v-model="email"></v-text-field>
     <v-text-field
       v-model="password"
       :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
@@ -25,8 +19,7 @@
       @keyup.enter="login"
       @click:append="show1 = !show1"
     ></v-text-field>
-    </div>
-    <p class="input" style="color: red">{{ error }}</p>
+    <p style="color: red">{{ error }}</p>
     <p></p>
     <div class="my-2">
       <v-btn
@@ -36,8 +29,17 @@
         large
         color="#00695C"
         @click="login"
-        >Login<v-icon > mdi-login</v-icon></v-btn
-      >
+      >Login</v-btn>
+    </div>
+    <div class="my-2">
+      <v-btn
+        class="center"
+        style="color: white"
+        depressed
+        large
+        color="#00695C"
+        @click="Signout"
+      >SIGNOUT</v-btn>
     </div>
   </div>
 </template>
@@ -60,14 +62,16 @@ export default {
     ],
   }),
   layout: "toolbar",
-  mounted() {
-    this.Signout();
-  },
   methods: {
+    doSave() {
+      alert("Username = " + this.username + "Password = " + this.password);
+    },
     Signout() {
       auth
         .signOut()
-        .then(function () {})
+        .then(function () {
+          // Sign-out successful.
+        })
         .catch(function (error) {
           // An error happened.
         });
@@ -119,7 +123,6 @@ export default {
           // console.log("data", data);
         }
       } catch (error) {
-        this.error = error
         console.error(error);
       }
     },
@@ -133,13 +136,6 @@ export default {
 }
 .font-style {
   text-align: center;
-}
-
-.input{
-  width: 50%;
-  margin-left: auto;
-  margin-right: auto;
-
 }
 
 .center {
