@@ -32,7 +32,14 @@
         <v-dialog v-model="dialog" scrollable max-width="1000px">
           <template v-slot:activator="{ on, attrs }">
             <v-btn class="mt-3" color="#00695C" dark v-bind="attrs" v-on="on"
-              >Create Quize And Test</v-btn
+              >Create Quiz And Test</v-btn
+            >
+            <v-btn
+              class="mt-3 ml-1"
+              style="color: white"
+              color="#00695C"
+              @click="goto"
+              >Show Quiz And Test</v-btn
             >
           </template>
           <v-date-picker v-model="date" :min="dateMin"></v-date-picker>
@@ -117,7 +124,7 @@
             <v-col cols="10" sm="6" md="3">
               <v-text-field
                 v-model="nameTitle"
-                label="Quetion"
+                label="FileName"
                 outlined
               ></v-text-field>
             </v-col>
@@ -171,6 +178,52 @@
             </v-card-actions>
           </v-card>
         </v-dialog>
+        <template>
+          <div class="text-center">
+            <v-dialog v-model="displayCard" width="500">
+              <v-card>
+                <v-card-title class="headline grey lighten-2"> </v-card-title>
+                ชื่อซ้ำ
+                <v-card-text>
+                  ชื่อข้อสอบหรือชื่อเเบบฝึกหัดที่คุณตั้งนั้นมีอยู่เเล้ว
+                  กรุณาเปลี่ยนชื่อข้อสอบหรือเเบบฝึกหัดใหม่
+                </v-card-text>
+                <v-divider></v-divider>
+                <v-btn elevation="2" @click="closeDisplayCard">Ok</v-btn>
+              </v-card>
+            </v-dialog>
+          </div>
+        </template>
+        <template>
+          <div class="text-center">
+            <v-dialog v-model="displayTime" width="500">
+              <v-card>
+                <v-card-title class="headline grey lighten-2"> </v-card-title>
+                ช่วงเวลาไม่ตรงตามเงี่ยนไข
+                <v-card-text>
+                  ช่วงเวลาที่ท่านเลือกนั้นได้เลยมาเเล้ว
+                </v-card-text>
+                <v-divider></v-divider>
+                <v-btn elevation="2" @click="closeDisplayTime">Ok</v-btn>
+              </v-card>
+            </v-dialog>
+          </div>
+        </template>
+        <template>
+          <div class="text-center">
+            <v-dialog v-model="checkText" width="500">
+              <v-card>
+                <v-card-title class="headline grey lighten-2"> </v-card-title>
+                กรอกข้อมูลไม่ครบ
+                <v-card-text>
+                  กรุณากรอกข้อมูลให้ครบทุกช่อง
+                </v-card-text>
+                <v-divider></v-divider>
+                <v-btn elevation="2" @click="closeCheckText">Ok</v-btn>
+              </v-card>
+            </v-dialog>
+          </div>
+        </template>
       </v-row>
     </div>
     <div class="chatRoom">
@@ -227,6 +280,10 @@ var displayMediaOptions = {
 export default {
   data() {
     return {
+      displayCard: false,
+      displayTime: false,
+      checkText: false,
+      checkTextNull: false,
       countChoice: 0,
       date: moment().format("YYYY-MM-DD"),
       dateString: "",
@@ -399,37 +456,65 @@ export default {
       socket.emit("sendMessage", { messageComment });
       this.messageComment = "";
     },
-    next() {
+    async next() {
       if (this.Example === "CHOICE") {
-        this.countChoice = this.countChoice + 1;
-        this.dataChoice.push({
-          type: this.Example,
-          nameTitle: this.nameTitle,
-          countChoice: this.countChoice,
-          question: this.Quizetion,
-          choiceOne: this.choice1,
-          choiceTwo: this.choice2,
-          choiceThree: this.choice3,
-          choiceFour: this.choice4,
-          answer: this.answer
-        });
-        this.nameTitle = "";
-        this.Quizetion = "";
-        this.choice1 = "";
-        this.choice2 = "";
-        this.choice3 = "";
-        this.choice4 = "";
-        this.answer = "";
+        if (
+          this.date === "" ||
+          this.textStart === "" ||
+          this.textEnd === "" ||
+          this.Quizetion === "" ||
+          this.choice1 === "" ||
+          this.choice2 === "" ||
+          this.choice3 === "" ||
+          this.choice4 === "" ||
+          this.answer === ""
+        ) {
+          this.checkTextNull = false;
+        } else {
+          this.checkTextNull = true;
+        }
+      } else if (this.Example === "WRITING") {
+        if (
+          this.date === "" ||
+          this.textStart === "" ||
+          this.textEnd === "" ||
+          this.Quizetion === ""
+        ) {
+          this.checkTextNull = false;
+        } else {
+          this.checkTextNull = true;
+        }
+      }
+      if (this.checkTextNull === false) {
+        this.checkText = true;
       } else {
-        this.countWriting = this.countWriting + 1;
-        this.dataWriting.push({
-          type: this.Example,
-          nameTitle: this.nameTitle,
-          countWriting: this.countWriting,
-          question: this.Quizetion
-        });
-        this.nameTitle = "";
-        this.Quizetion = "";
+        if (this.Example === "CHOICE") {
+          this.countChoice = this.countChoice + 1;
+          this.dataChoice.push({
+            type: this.Example,
+            countChoice: this.countChoice,
+            question: this.Quizetion,
+            choiceOne: this.choice1,
+            choiceTwo: this.choice2,
+            choiceThree: this.choice3,
+            choiceFour: this.choice4,
+            answer: this.answer
+          });
+          this.Quizetion = "";
+          this.choice1 = "";
+          this.choice2 = "";
+          this.choice3 = "";
+          this.choice4 = "";
+          this.answer = "";
+        } else {
+          this.countWriting = this.countWriting + 1;
+          this.dataWriting.push({
+            type: this.Example,
+            countWriting: this.countWriting,
+            question: this.Quizetion
+          });
+          this.Quizetion = "";
+        }
       }
     },
     close() {
@@ -447,63 +532,126 @@ export default {
       this.textEnd = "";
       this.countWriting = 0;
       this.countChoice = 0;
+      this.Example = "";
     },
     async save() {
+      const snapshot = await db
+        .collection("exam")
+        .where("nameTitle", "==", this.nameTitle)
+        .limit(1)
+        .get();
+      let beforeStart;
+      let beforeEnd;
+      beforeStart = moment(
+        `${this.date} ${this.textStart}`,
+        "YYYY-MM-DD HH:mm"
+      );
+      beforeEnd = moment(`${this.date} ${this.textEnd}`, "YYYY-MM-DD HH:mm");
       if (this.Example === "CHOICE") {
-        this.countChoice = this.countChoice + 1;
-        this.dataChoice.push({
-          type: this.Example,
-          nameTitle: this.nameTitle,
-          countChoice: this.countChoice,
-          question: this.Quizetion,
-          choiceOne: this.choice1,
-          choiceTwo: this.choice2,
-          choiceThree: this.choice3,
-          choiceFour: this.choice4,
-          answer: this.answer
-        });
+        if (
+          this.date === "" ||
+          this.textStart === "" ||
+          this.textEnd === "" ||
+          this.Quizetion === "" ||
+          this.choice1 === "" ||
+          this.choice2 === "" ||
+          this.choice3 === "" ||
+          this.choice4 === "" ||
+          this.answer === ""
+        ) {
+          this.checkTextNull = false;
+        } else {
+          this.checkTextNull = true;
+        }
+      } else if (this.Example === "WRITING") {
+        if (
+          this.date === "" ||
+          this.textStart === "" ||
+          this.textEnd === "" ||
+          this.Quizetion === ""
+        ) {
+          this.checkTextNull = false;
+        } else {
+          this.checkTextNull = true;
+        }
+      }
+      if (this.checkTextNull === false) {
+        this.checkText = true;
+      } else if (!snapshot.empty) {
+        this.displayCard = true;
+      } else if (moment().isAfter(beforeStart) || moment().isAfter(beforeEnd)) {
+        this.displayTime = true;
       } else {
-        this.countWriting = this.countWriting + 1;
-        this.dataWriting.push({
-          type: this.Example,
-          nameTitle: this.nameTitle,
-          countWriting: this.countWriting,
-          question: this.Quizetion
-        });
-      }
-      try {
-        let itemQuestion = [];
-        if (!isEmpty(this.dataChoice)) {
-          itemQuestion = this.dataChoice;
+        if (this.Example === "CHOICE") {
+          this.countChoice = this.countChoice + 1;
+          this.dataChoice.push({
+            type: this.Example,
+            countChoice: this.countChoice,
+            question: this.Quizetion,
+            choiceOne: this.choice1,
+            choiceTwo: this.choice2,
+            choiceThree: this.choice3,
+            choiceFour: this.choice4,
+            answer: this.answer
+          });
+        } else {
+          this.countWriting = this.countWriting + 1;
+          this.dataWriting.push({
+            type: this.Example,
+            countWriting: this.countWriting,
+            question: this.Quizetion
+          });
         }
-        if (!isEmpty(this.dataWriting)) {
-          itemQuestion = [...itemQuestion, ...this.dataWriting];
-        }
+        try {
+          let itemQuestion = [];
+          if (!isEmpty(this.dataChoice)) {
+            itemQuestion = this.dataChoice;
+          }
+          if (!isEmpty(this.dataWriting)) {
+            itemQuestion = [...itemQuestion, ...this.dataWriting];
+          }
 
-        await db.collection("exam").add({
-          codeClass: this.getClass.code,
-          date: this.date,
-          timeStart: this.textStart,
-          timeEnd: this.textEnd,
-          itemQuestion
-        });
-      } catch (error) {
-        console.log(error);
+          await db.collection("exam").add({
+            codeClass: this.getClass.code,
+            nameTitle: this.nameTitle,
+            date: this.date,
+            timeStart: this.textStart,
+            timeEnd: this.textEnd,
+            itemQuestion
+          });
+        } catch (error) {
+          console.log(error);
+        }
+        this.dialog = false;
+        this.nameTitle = "";
+        this.dataWriting = "";
+        this.dataChoice = "";
+        this.Quizetion = "";
+        this.choice1 = "";
+        this.choice2 = "";
+        this.choice3 = "";
+        this.choice4 = "";
+        this.answer = "";
+        this.textStart = "";
+        this.textEnd = "";
+        this.countWriting = 0;
+        this.countChoice = 0;
       }
-      this.dialog = false;
+    },
+    goto() {
+      this.$router.push(`/exam`);
+    },
+    closeDisplayCard() {
       this.nameTitle = "";
-      this.dataWriting = "";
-      this.dataChoice = "";
-      this.Quizetion = "";
-      this.choice1 = "";
-      this.choice2 = "";
-      this.choice3 = "";
-      this.choice4 = "";
-      this.answer = "";
+      this.displayCard = false;
+    },
+    closeDisplayTime() {
       this.textStart = "";
       this.textEnd = "";
-      this.countWriting = 0;
-      this.countChoice = 0;
+      this.displayTime = false;
+    },
+    closeCheckText() {
+      this.checkText = false;
     }
   },
   computed: {

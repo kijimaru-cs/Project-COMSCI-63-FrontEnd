@@ -1,5 +1,15 @@
 <template>
   <div class="card">
+    <v-row
+      ><v-col
+        ><v-btn
+          v-if="getUser.role === 'TEACHER'"
+          elevation="2"
+          @click="changeMode"
+          >{{ textButton }}</v-btn
+        >
+      </v-col></v-row
+    >
     <v-card
       v-for="(data, index) in dataExam"
       v-bind:key="index"
@@ -12,15 +22,27 @@
           <v-col cols="auto" class="text-center pl-0">
             <v-row class="flex-column ma-0 fill-height" justify="center">
               <v-card-text>{{ data.nameTitle }}</v-card-text>
-              <v-btn
-                v-if="data.isTimeUp"
-                class="center"
-                style="color: white"
-                large
-                color="#00695C"
-                @click="pushExam(data.id)"
-                >OPEN</v-btn
-              >
+              <div v-if="getUser.role === 'STUDENT'">
+                <v-btn
+                  v-if="data.isTimeUp"
+                  class="center"
+                  style="color: white"
+                  large
+                  color="#00695C"
+                  @click="pushExam(data.id)"
+                  >OPEN</v-btn
+                >
+              </div>
+              <div v-else>
+                <v-btn
+                  class="center"
+                  style="color: white"
+                  large
+                  color="#00695C"
+                  @click="pushExam(data.id)"
+                  >OPEN</v-btn
+                >
+              </div>
             </v-row>
           </v-col>
         </v-row>
@@ -37,11 +59,15 @@ import moment from "moment";
 
 export default {
   data: () => ({
-    dataExam: []
+    dataExam: [],
+    textButton: "SHOW EXAM",
+    displayButton1: false,
+    displayButton2: false
   }),
   layout: "toolbarClassroom",
   mounted() {
     this.getExam();
+    this.changeMode();
   },
   methods: {
     async getExam() {
@@ -79,6 +105,15 @@ export default {
     },
     pushExam(id) {
       this.$router.push(`/exam/${id}`);
+    },
+    changeMode() {
+      if (this.textButton === "EDIT EXAM") {
+        this.textButton = "SHOW EXAM";
+      } else if (this.textButton === "SHOW EXAM") {
+        this.textButton = "EDIT EXAM";
+      }
+      this.$store.dispatch("exam/getMode", this.textButton);
+      console.log("textButton", this.textButton);
     }
   },
   computed: {

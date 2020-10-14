@@ -11,7 +11,7 @@
         ></video>
         <audio :srcObject.prop="audioElem" controls></audio><br />
         <v-btn style="color: white" color="#00695C" @click="nextDisplayExam"
-          >Quize and Exam</v-btn
+          >Quiz and Exam</v-btn
         >
       </center>
     </div>
