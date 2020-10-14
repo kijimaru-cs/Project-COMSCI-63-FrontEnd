@@ -81,7 +81,7 @@ export default {
     nameRoom: "",
     codeRoom: "",
     dataRoom: [],
-    role: "",
+    role: ""
   }),
   layout: "normal",
   mounted() {
@@ -108,6 +108,7 @@ export default {
   methods: {
     pushClassroom(id) {
       this.$router.push(`/teacher/${id}`);
+      this.$store.dispatch("classroom/getClassRoom", id);
     },
     async createRoom() {
       const snapshot = await db
@@ -124,7 +125,7 @@ export default {
         await db.collection("room").add({
           name: this.nameRoom,
           code: this.codeRoom,
-          idTeacher: this.getUser.id,
+          idTeacher: this.getUser.id
         });
         console.log("Create Success");
       }
@@ -152,7 +153,7 @@ export default {
           .get();
         if (!snapshot.empty) {
           this.dataRoom = await Promise.all(
-            snapshot.docs.map(async (doc) => {
+            snapshot.docs.map(async doc => {
               let item = {};
               item = await doc.data();
               item.id = doc.id;
@@ -166,13 +167,13 @@ export default {
         console.log(this.getUser.id);
         console.log(error);
       }
-    },
+    }
   },
   computed: {
     ...mapGetters({
-      getUser: "user/getUser",
-    }),
-  },
+      getUser: "user/getUser"
+    })
+  }
 };
 </script>
 

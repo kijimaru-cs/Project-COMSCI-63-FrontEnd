@@ -17,8 +17,8 @@
         <v-icon>mdi-dots-vertical</v-icon>
       </v-btn>
     </v-app-bar>
-    <v-main class="main">
-      <v-container>
+    <v-main>
+      <v-container v-if="isUser">
         <nuxt />
       </v-container>
     </v-main>
@@ -29,10 +29,11 @@
 import { mapGetters } from "vuex";
 import firebase from "firebase/app";
 import "firebase/auth";
+import { isEmpty } from "lodash";
 export default {
   data: () => ({}),
 
-  async mounted() {
+  async created() {
     const data = await new Promise((resolve, reject) =>
       firebase.auth().onAuthStateChanged(async user => {
         resolve(user);
@@ -72,7 +73,10 @@ export default {
   computed: {
     ...mapGetters({
       getUser: "user/getUser"
-    })
+    }),
+    isUser() {
+      return !isEmpty(this.getUser);
+    }
   }
 };
 </script>

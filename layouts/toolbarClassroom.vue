@@ -18,7 +18,7 @@
       </v-btn>
     </v-app-bar>
     <v-main>
-      <v-container>
+      <v-container v-if="isUser">
         <nuxt />
       </v-container>
     </v-main>
@@ -29,6 +29,7 @@
 import { mapGetters } from "vuex";
 import firebase from "firebase/app";
 import "firebase/auth";
+import { isEmpty } from "lodash";
 export default {
   data: () => ({}),
 
@@ -58,6 +59,25 @@ export default {
         this.$store.dispatch("user/getDataByEmail", docs);
       }
     }
+    if (this.$route.params.id) {
+      const snapshot = await firebase
+        .firestore()
+        .collection("room")
+        .where("code", "==", this.$route.params.id)
+        .limit(1)
+        .get();
+      if (!snapshot.empty) {
+        const [docs] = await Promise.all(
+          snapshot.docs.map(async doc => {
+            let item = {};
+            item = await doc.data();
+            item.id = doc.id;
+            return item;
+          })
+        );
+        this.$store.dispatch("classroom/getClassRoom", docs);
+      }
+    }
   },
   methods: {
     Signout() {
@@ -83,9 +103,12 @@ export default {
   },
   computed: {
     ...mapGetters({
-      getUser: "user/getUser",
+      getUser: "user/getUser"
     }),
-  },
+    isUser() {
+      return !isEmpty(this.getUser);
+    }
+  }
 };
 </script>
 

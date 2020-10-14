@@ -43,13 +43,13 @@
         style="max-height: 500px"
         class="overflow-y-auto"
       >
-        <v-rowz
+        <v-row
           class="p"
           v-scroll:#scroll-target="onScroll"
           align="start"
           justify="start"
           style="height: 500px"
-          >{{ comment }}</v-rowz
+          >{{ comment }}</v-row
         >
       </v-container>
       <v-text-field
@@ -59,9 +59,10 @@
       ></v-text-field>
     </div>
   </div>
-</template> 
+</template>
 
 <script>
+import { mapGetters } from "vuex";
 import * as firebase from "firebase/app";
 import "firebase/auth";
 import Cookies from "js-cookie";
@@ -72,9 +73,9 @@ var peerConnectionAudio = {};
 const config = {
   iceServers: [
     {
-      urls: "stun:stun.l.google.com:19302",
-    },
-  ],
+      urls: "stun:stun.l.google.com:19302"
+    }
+  ]
 };
 // const socket = io("http://35.197.137.197:3001/");
 const socket = io("http://localhost:3001/");
@@ -95,7 +96,7 @@ export default {
   },
 
   mounted() {
-    firebase.auth().onAuthStateChanged((user) => {
+    firebase.auth().onAuthStateChanged(user => {
       if (user) {
         this.userEmail = user.email;
         this.getUsername();
@@ -116,14 +117,14 @@ export default {
       peerConnectionVideo
         .setRemoteDescription(description)
         .then(() => peerConnectionVideo.createAnswer())
-        .then((sdp) => peerConnectionVideo.setLocalDescription(sdp))
+        .then(sdp => peerConnectionVideo.setLocalDescription(sdp))
         .then(() => {
           socket.emit("answerVideo", id, peerConnectionVideo.localDescription);
         });
-      peerConnectionVideo.ontrack = (event) => {
+      peerConnectionVideo.ontrack = event => {
         this.videoElem = event.streams[0];
       };
-      peerConnectionVideo.onicecandidate = (event) => {
+      peerConnectionVideo.onicecandidate = event => {
         if (event.candidate) {
           socket.emit("candidateVideo", id, event.candidate);
         }
@@ -134,14 +135,14 @@ export default {
       peerConnectionAudio
         .setRemoteDescription(description)
         .then(() => peerConnectionAudio.createAnswer())
-        .then((sdp) => peerConnectionAudio.setLocalDescription(sdp))
+        .then(sdp => peerConnectionAudio.setLocalDescription(sdp))
         .then(() => {
           socket.emit("answerAudioReceive", id, peerConnectionAudio.localDescription);
         });
       peerConnectionAudio.ontrack = (event) => {
         this.audioElem2 = event.streams[0];
       };
-      peerConnectionAudio.onicecandidate = (event) => {
+      peerConnectionAudio.onicecandidate = event => {
         if (event.candidate) {
           socket.emit("candidateAudioReceive", id, event.candidate);
         }
@@ -150,12 +151,12 @@ export default {
     socket.on("candidateVideo", (id, candidate) => {
       peerConnectionVideo
         .addIceCandidate(new RTCIceCandidate(candidate))
-        .catch((e) => console.error(e));
+        .catch(e => console.error(e));
     });
     socket.on("candidateAudioReceive", (id, candidate) => {
       peerConnectionAudio
         .addIceCandidate(new RTCIceCandidate(candidate))
-        .catch((e) => console.error(e));
+        .catch(e => console.error(e));
     });
 
     socket.on("broadcasterVideo", () => {
@@ -282,7 +283,15 @@ export default {
       (this.MicStart = false)
       this.audioElem.getTracks().forEach((track) => track.stop());
     },
+    nextDisplayExam() {
+      this.$router.push(`/exam`);
+    }
   },
+  computed: {
+    ...mapGetters({
+      getClass: "classroom/getClass"
+    })
+  }
 };
 
 Cookies.set("user-email", "userEmail", { expires: 1 });
