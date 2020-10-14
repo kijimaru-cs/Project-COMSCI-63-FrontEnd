@@ -78,7 +78,6 @@ export default {
       if (user) {
         this.userEmail = user.email;
       } else {
-        this.$router.push("/");
       }
     });
 
@@ -100,7 +99,7 @@ export default {
         snapshot.forEach(doc => {
           this.idRoom = doc.id;
           if (!doc.data().idStudent) {
-            this.idStudent = ["DummyCode101"];
+            this.idStudent = ["TestCode101"];
           } else {
             this.idStudent = doc.data().idStudent;
           }

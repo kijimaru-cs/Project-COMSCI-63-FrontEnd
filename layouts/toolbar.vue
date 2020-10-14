@@ -1,15 +1,15 @@
 <template>
   <v-app light>
-    <v-app-bar app class="pa-0 ma-0" style="background-color: #00796B">
+    <v-app-bar app class="pa-0 ma-0">
       <v-app-bar-nav-icon>
         <div>
           <a href="/">
-            <img src="KU_Logo_PNG.png" style="width:60px;height:60px;border:2px solid #fff;backgroundColor: white" />
+            <img src="KU_Logo_PNG.png" style="width:60px;height:60px;" />
           </a>
         </div>
       </v-app-bar-nav-icon>
       <v-toolbar-title>
-        <h1 style="color: white;text-shadow: 2px 2px black;">Classroom</h1>
+        <h1>Classroom</h1>
       </v-toolbar-title>
       <br />
       <v-spacer></v-spacer>
@@ -84,10 +84,6 @@ export default {
 <style scoped>
 .con-center {
   text-align: center;
-}
-
-.main{
-  background-color: #B2DFDB;
 }
 
 .toolbar {
