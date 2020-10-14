@@ -12,8 +12,8 @@
   "dependencies": {
     "cookieparser": "^0.1.0",
     "express": "^4.17.1",
-    "firebase": "^7.23.0",
-    "firebase-admin": "^9.2.0",
+    "firebase": "^7.19.1",
+    "firebase-admin": "^9.1.1",
     "js-cookie": "^2.2.1",
     "jwt-decode": "^2.2.0",
     "material-design-icons-iconfont": "^5.0.1",
