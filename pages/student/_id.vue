@@ -273,7 +273,7 @@ export default {
     logout() {},
     nextDisplayExam() {
       this.$router.push(`/exam`);
-    }
+    },
     async MicOn() {
       navigator.mediaDevices
         .getUserMedia({ audio: true })
