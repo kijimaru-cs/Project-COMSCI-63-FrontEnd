@@ -1,5 +1,15 @@
 <template>
   <div class="container">
+<<<<<<< HEAD
+=======
+    <div class="statusRoom">
+      <h1>Online</h1>
+      <p v-for="data in this.onlineUsername" :key="data.index">
+        {{ data }}
+        <br />
+      </p>
+    </div>
+>>>>>>> master
     <div class="screenRoom">
       <center>
         <video

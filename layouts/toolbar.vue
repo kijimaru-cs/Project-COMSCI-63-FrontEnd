@@ -17,8 +17,8 @@
         <v-icon>mdi-dots-vertical</v-icon>
       </v-btn>
     </v-app-bar>
-    <v-main>
-      <v-container>
+    <v-main class="main">
+      <v-container >
         <nuxt />
       </v-container>
     </v-main>
@@ -73,7 +73,10 @@ export default {
   computed: {
     ...mapGetters({
       getUser: "user/getUser"
-    })
+    }),
+    isUser() {
+      return !isEmpty(this.getUser);
+    }
   }
 };
 </script>
