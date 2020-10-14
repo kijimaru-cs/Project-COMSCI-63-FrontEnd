@@ -18,6 +18,7 @@
                     v-if="data.type === 'WRITING'"
                     @change="textAdd(index)"
                     outlined
+                    auto-grow
                     name="input-7-4"
                     label="ตอบ"
                   ></v-textarea>
