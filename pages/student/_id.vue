@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="statusRoom">
-      <h2>Online</h2>
+      <h1>Online</h1>
       <p v-for="data in this.onlineUsername" :key="data.index">
         {{ data }}
         <br />
