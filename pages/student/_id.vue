@@ -19,6 +19,7 @@
         <audio :srcObject.prop="audioElem2" controls ></audio>
         <br />
         <v-btn
+          v-if="MicStart == false"
           style="color: white"
           color="#3949AB"
           @click="MicOn"
@@ -26,10 +27,11 @@
           >Mic On <v-icon dark right> mdi-microphone </v-icon></v-btn
         >
         <v-btn
+          v-if="MicStart == true"
           style="color: white"
-          color="#3949AB"
+          color="#FF5252"
           @click="MicOff"
-          :disabled="MicStop"
+          :disabled="!MicStart"
           >Mic Off <v-icon dark right> mdi-microphone-off</v-icon></v-btn
         >
       </center>
@@ -64,7 +66,7 @@ import * as firebase from "firebase/app";
 import "firebase/auth";
 import Cookies from "js-cookie";
 import { db } from "@/lib/firebase.js";
-const io = require("socket.io-client");
+var io = require("socket.io-client");
 var peerConnectionVideo = {};
 var peerConnectionAudio = {};
 const config = {
@@ -89,7 +91,6 @@ export default {
       messageComment: "",
       codeStudent: "",
       MicStart: false,
-      MicStop: true,
     };
   },
 
@@ -255,7 +256,13 @@ export default {
       this.messageComment = "";
     },
     sendUsername(username) {
-      socket.emit("sendUsername", username + "(" + this.codeStudent + ")");
+      if(!username.empty){
+        socket.emit("sendUsername", username + "(" + this.codeStudent + ")");
+      }
+      else{
+        this.$router.push("/");
+      }
+      
     },
     logout() {},
     async MicOn() {
@@ -264,7 +271,7 @@ export default {
         .then((mediaStream) => {
           this.audioElem = mediaStream;
           socket.emit("broadcasterAudioSend2");
-          (this.MicStart = true), (this.MicStop = false);
+          (this.MicStart = true)
         })
         .catch((err) => {
           console.error("Error: " + err);
@@ -272,7 +279,7 @@ export default {
     },
 
     MicOff() {
-      (this.MicStart = false), (this.MicStop = true);
+      (this.MicStart = false)
       this.audioElem.getTracks().forEach((track) => track.stop());
     },
   },

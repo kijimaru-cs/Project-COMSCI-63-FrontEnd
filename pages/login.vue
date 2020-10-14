@@ -6,7 +6,8 @@
     <br />
     <br />
     <br />
-    <p style="font-size: 20px; color: #78909c">เข้าสู่ระบบห้องเรียน</p>
+    <p class="input" style="font-size: 30px; color: #78909c">เข้าสู่ระบบห้องเรียน</p>
+    <div class="input">
     <v-text-field
       label="E-mail"
       :rules="rules"
@@ -24,7 +25,8 @@
       @keyup.enter="login"
       @click:append="show1 = !show1"
     ></v-text-field>
-    <p style="color: red">{{ error }}</p>
+    </div>
+    <p class="input" style="color: red">{{ error }}</p>
     <p></p>
     <div class="my-2">
       <v-btn
@@ -34,7 +36,7 @@
         large
         color="#00695C"
         @click="login"
-        >Login</v-btn
+        >Login<v-icon > mdi-login</v-icon></v-btn
       >
     </div>
   </div>
@@ -117,6 +119,7 @@ export default {
           // console.log("data", data);
         }
       } catch (error) {
+        this.error = error
         console.error(error);
       }
     },
@@ -130,6 +133,13 @@ export default {
 }
 .font-style {
   text-align: center;
+}
+
+.input{
+  width: 50%;
+  margin-left: auto;
+  margin-right: auto;
+
 }
 
 .center {

@@ -19,6 +19,7 @@
         <audio :srcObject.prop="audioElem2" controls></audio>
         <br />
         <v-btn
+          v-if="buttonStart == false"
           style="color: white"
           color="#00695C"
           @click="startCapture"
@@ -28,16 +29,17 @@
           </v-icon></v-btn
         >
         <v-btn
+          v-if="buttonStart == true"
           style="color: white"
-          color="#00695C"
+          color="#E53935"
           @click="stopCapture"
-          :disabled="buttonStop"
+          :disabled="!buttonStart"
           >Stop Share Screen<v-icon dark right>
             mdi-monitor-multiple
           </v-icon></v-btn
         >
-        <br />
         <v-btn
+          v-if="MicStart == false"
           style="color: white"
           color="#3949AB"
           @click="MicOn"
@@ -45,10 +47,11 @@
           >Mic On <v-icon dark right> mdi-microphone </v-icon></v-btn
         >
         <v-btn
+          v-if="MicStart == true"
           style="color: white"
-          color="#3949AB"
+          color="#FF5252"
           @click="MicOff"
-          :disabled="MicStop"
+          :disabled="!MicStart"
           >Mic Off <v-icon dark right> mdi-microphone-off</v-icon></v-btn
         >
         <br />
@@ -157,9 +160,10 @@ import Cookies from "js-cookie";
 import { isEmpty } from "lodash";
 const io = require("socket.io-client");
 // const socket = io("http://35.197.137.197:3001/");
-const socket = io("http://localhost:3001/");
+var socket = io("http://localhost:3001/");
 var peerConnectionsVideo = {};
 var peerConnectionAudio = {};
+var ShareVideo
 const config = {
   iceServers: [
     {
@@ -202,7 +206,6 @@ export default {
       buttonStart: false,
       buttonStop: true,
       MicStart: false,
-      MicStop: true,
       offsetTop: 0,
       user: "",
       userEmail: "",
@@ -340,7 +343,6 @@ export default {
         .get();
       if (!snapshot.empty) {
         snapshot.forEach((doc) => {
-          console.log(doc.data());
           this.username = doc.data().username;
           this.sendUsername(this.username);
         });
@@ -357,7 +359,7 @@ export default {
         .then((mediaStream) => {
           this.videoElem = mediaStream;
           socket.emit("broadcasterVideo");
-          (this.buttonStart = true), (this.buttonStop = false);
+          (this.buttonStart = true)
         });
     },
     async MicOn() {
@@ -366,18 +368,18 @@ export default {
         .then((mediaStream) => {
           this.audioElem = mediaStream;
           socket.emit("broadcasterAudioSend");
-          (this.MicStart = true), (this.MicStop = false);
+          (this.MicStart = true)
         })
         .catch((err) => {
           console.error("Error: " + err);
         });
     },
     stopCapture() {
-      (this.buttonStart = false), (this.buttonStop = true);
+      (this.buttonStart = false)
       this.videoElem.getTracks().forEach((track) => track.stop());
     },
     MicOff() {
-      (this.MicStart = false), (this.MicStop = true);
+      (this.MicStart = false)
       this.audioElem.getTracks().forEach((track) => track.stop());
     },
     logout() {},

@@ -57,7 +57,6 @@ export default {
         );
         this.$store.dispatch("user/getDataByEmail", docs);
       }
-      console.log("data", data);
     }
   },
   methods: {

@@ -99,7 +99,7 @@ export default {
         snapshot.forEach((doc) => {
           this.idRoom = doc.id;
           if (!doc.data().idStudent) {
-            this.idStudent = ["TestCode101"];
+            this.idStudent = ["DummyCode101"];
           } else {
             this.idStudent = doc.data().idStudent;
           }

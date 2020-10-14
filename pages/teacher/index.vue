@@ -5,7 +5,7 @@
       <v-dialog v-model="dialog" persistent max-width="400">
         <template v-slot:activator="{ on, attrs }">
           <v-btn color="primary" dark v-bind="attrs" v-on="on"
-            >CREATE ROOM</v-btn
+            >CREATE ROOM<v-icon > mdi-plus-circle-outline</v-icon></v-btn
           >
         </template>
         <v-card>
@@ -60,7 +60,7 @@
                   large
                   color="#00695C"
                   @click="pushClassroom(data.code)"
-                  >OPEN</v-btn
+                  ><v-icon > mdi-play</v-icon>OPEN</v-btn
                 >
               </v-row>
             </v-col>

@@ -62,7 +62,6 @@ export default {
         );
         this.$store.dispatch("user/getDataByEmail", docs);
       }
-      console.log("data", data);
     }
     this.idRoom = this.$route.params.id;
   },
