@@ -4,23 +4,37 @@
     <v-row justify="center">
       <v-dialog v-model="dialog" persistent max-width="400">
         <template v-slot:activator="{ on, attrs }">
-          <v-btn color="primary" dark v-bind="attrs" v-on="on">CREATE ROOM</v-btn>
+          <v-btn color="primary" dark v-bind="attrs" v-on="on"
+            >CREATE ROOM</v-btn
+          >
         </template>
         <v-card>
           <v-card-title class="headline">CREATE ROOM</v-card-title>
           <v-row>
             <v-col cols="12" sm="10">
-              <v-text-field class="pl-3" v-model="nameRoom" label="NameRoom" outlined></v-text-field>
+              <v-text-field
+                class="pl-3"
+                v-model="nameRoom"
+                label="NameRoom"
+                outlined
+              ></v-text-field>
             </v-col>
           </v-row>
           <v-row>
             <v-col cols="12" sm="10">
-              <v-text-field class="pl-3" v-model="codeRoom" label="Code" outlined></v-text-field>
+              <v-text-field
+                class="pl-3"
+                v-model="codeRoom"
+                label="Code"
+                outlined
+              ></v-text-field>
             </v-col>
           </v-row>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="green darken-1" text @click="createRoom">CREATE</v-btn>
+            <v-btn color="green darken-1" text @click="createRoom"
+              >CREATE</v-btn
+            >
             <v-btn color="green darken-1" text @click="cancel">CANCEL</v-btn>
           </v-card-actions>
         </v-card>
@@ -39,14 +53,15 @@
             <v-col cols="auto" class="text-center pl-0">
               <v-row class="flex-column ma-0 fill-height" justify="center">
                 <v-card-text>{{ data.name }}</v-card-text>
-                <p>Code:{{data.code}}</p>
+                <p>Code:{{ data.code }}</p>
                 <v-btn
                   class="center"
                   style="color: white"
                   large
                   color="#00695C"
                   @click="pushClassroom(data.code)"
-                >OPEN</v-btn>
+                  >OPEN</v-btn
+                >
               </v-row>
             </v-col>
           </v-row>
@@ -66,11 +81,11 @@ export default {
     nameRoom: "",
     codeRoom: "",
     dataRoom: [],
-    role: "",
+    role: ""
   }),
   layout: "normal",
   mounted() {
-    firebase.auth().onAuthStateChanged((user) => {
+    firebase.auth().onAuthStateChanged(user => {
       if (user) {
         console.log(user);
       } else {
@@ -81,6 +96,7 @@ export default {
   methods: {
     pushClassroom(id) {
       this.$router.push(`/teacher/${id}`);
+      this.$store.dispatch("classroom/getClassRoom", id);
     },
     async createRoom() {
       const snapshot = await db
@@ -97,7 +113,7 @@ export default {
         await db.collection("room").add({
           name: this.nameRoom,
           code: this.codeRoom,
-          idTeacher: this.getUser.id,
+          idTeacher: this.getUser.id
         });
         console.log("Create Success");
       }
@@ -125,7 +141,7 @@ export default {
           .get();
         if (!snapshot.empty) {
           this.dataRoom = await Promise.all(
-            snapshot.docs.map(async (doc) => {
+            snapshot.docs.map(async doc => {
               let item = {};
               item = await doc.data();
               item.id = doc.id;
@@ -139,13 +155,13 @@ export default {
         console.log(this.getUser.id);
         console.log(error);
       }
-    },
+    }
   },
   computed: {
     ...mapGetters({
-      getUser: "user/getUser",
-    }),
-  },
+      getUser: "user/getUser"
+    })
+  }
 };
 </script>
 
