@@ -5,7 +5,7 @@
       <v-dialog v-model="dialog" persistent max-width="400">
         <template v-slot:activator="{ on, attrs }">
           <v-btn color="primary" dark v-bind="attrs" v-on="on"
-            >CREATE ROOM</v-btn
+            >CREATE ROOM<v-icon > mdi-plus-circle-outline</v-icon></v-btn
           >
         </template>
         <v-card>
@@ -60,7 +60,7 @@
                   large
                   color="#00695C"
                   @click="pushClassroom(data.code)"
-                  >OPEN</v-btn
+                  ><v-icon > mdi-play</v-icon>OPEN</v-btn
                 >
               </v-row>
             </v-col>
@@ -73,7 +73,7 @@
 
 <script>
 import { mapGetters } from "vuex";
-import { db } from "@/lib/firebase";
+import { db, auth } from "@/lib/firebase";
 import * as firebase from "firebase/app";
 export default {
   data: () => ({
@@ -81,14 +81,26 @@ export default {
     nameRoom: "",
     codeRoom: "",
     dataRoom: [],
-    role: ""
+    role: "",
   }),
   layout: "normal",
   mounted() {
-    firebase.auth().onAuthStateChanged(user => {
+    const navObject = performance.navigation;
+    console.log(navObject);
+    if (navObject.type == 1 || navObject.type == 2) {
+      firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+          this.$router.push("/");
+        } else {
+          this.$router.push("/");
+        }
+      });
+      this.getRoom();
+    }
+    firebase.auth().onAuthStateChanged((user) => {
       if (user) {
-        console.log(user);
       } else {
+        this.$router.push("/");
       }
     });
     this.getRoom();
@@ -96,7 +108,6 @@ export default {
   methods: {
     pushClassroom(id) {
       this.$router.push(`/teacher/${id}`);
-      this.$store.dispatch("classroom/getClassRoom", id);
     },
     async createRoom() {
       const snapshot = await db
@@ -113,7 +124,7 @@ export default {
         await db.collection("room").add({
           name: this.nameRoom,
           code: this.codeRoom,
-          idTeacher: this.getUser.id
+          idTeacher: this.getUser.id,
         });
         console.log("Create Success");
       }
@@ -141,7 +152,7 @@ export default {
           .get();
         if (!snapshot.empty) {
           this.dataRoom = await Promise.all(
-            snapshot.docs.map(async doc => {
+            snapshot.docs.map(async (doc) => {
               let item = {};
               item = await doc.data();
               item.id = doc.id;
@@ -155,13 +166,13 @@ export default {
         console.log(this.getUser.id);
         console.log(error);
       }
-    }
+    },
   },
   computed: {
     ...mapGetters({
-      getUser: "user/getUser"
-    })
-  }
+      getUser: "user/getUser",
+    }),
+  },
 };
 </script>
 
