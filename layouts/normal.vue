@@ -12,10 +12,11 @@
 import { mapGetters } from "vuex";
 import firebase from "firebase/app";
 import "firebase/auth";
+import { isEmpty } from "lodash";
 export default {
   data: () => ({}),
 
-  async mounted() {
+  async created() {
     const data = await new Promise((resolve, reject) =>
       firebase.auth().onAuthStateChanged(async user => {
         resolve(user);
