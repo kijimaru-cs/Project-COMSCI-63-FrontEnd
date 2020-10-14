@@ -111,7 +111,7 @@
               </div>
             </v-card>
           </v-dialog>
-        </p></v-toolbar
+        </v-toolbar
       >
     </template>
     <template v-slot:item.actions="{ item }">
