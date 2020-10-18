@@ -18,7 +18,7 @@
         ></video>
         <br />
         <v-btn style="color: white" color="#00695C" @click="nextDisplayExam"
-          >Quiz and Exam</v-btn
+          >Quiz and Exam</v-btn>
         <audio :srcObject.prop="audioElem2" controls ></audio>
         <br />
         <v-btn
@@ -72,6 +72,10 @@ import "firebase/auth";
 import Cookies from "js-cookie";
 import { db } from "@/lib/firebase.js";
 var io = require("socket.io-client");
+var options = {
+        //rejectUnauthorized: false // allow self-signed certs
+};
+const socket = io("http://35.197.137.197:3001/",options);
 var peerConnectionVideo = {};
 var peerConnectionAudio = {};
 const config = {
@@ -81,8 +85,7 @@ const config = {
     }
   ]
 };
-// const socket = io("http://35.197.137.197:3001/");
-const socket = io("http://localhost:3001/");
+// const socket = io("http://localhost:3001/");
 export default {
   data() {
     return {

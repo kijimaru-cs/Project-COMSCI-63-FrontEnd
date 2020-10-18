@@ -293,8 +293,11 @@ import Cookies from "js-cookie";
 import { isEmpty } from "lodash";
 import moment from "moment";
 const io = require("socket.io-client");
-// const socket = io("http://35.197.137.197:3001/");
-var socket = io("http://localhost:3001/");
+var options = {
+        //rejectUnauthorized: false // allow self-signed certs
+};
+const socket = io("http://35.197.137.197:3001/",options);
+// var socket = io("http://localhost:3001/");
 var peerConnectionsVideo = {};
 var peerConnectionAudio = {};
 var ShareVideo
