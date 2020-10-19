@@ -6,7 +6,7 @@
     <br />
     <br />
     <br />
-    <p class="input" style="font-size: 30px; color: #78909c">เข้าสู่ระบบห้องเรียน</p>
+    <p class="input" style="font-size: 30px; color: black">เข้าสู่ระบบห้องเรียน</p>
     <div class="input">
     <v-text-field
       label="E-mail"
@@ -19,6 +19,7 @@
       :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
       :type="show1 ? 'text' : 'password'"
       name="input-10-1"
+      :rules="rules"
       label="Password"
       hint="At least 8 characters"
       counter

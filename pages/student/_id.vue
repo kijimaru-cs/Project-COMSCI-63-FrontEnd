@@ -17,10 +17,6 @@
           controls
         ></video>
         <br />
-        <v-btn style="color: white" color="#00695C" @click="nextDisplayExam"
-          >Quiz and Exam</v-btn>
-        <audio :srcObject.prop="audioElem2" controls ></audio>
-        <br />
         <v-btn
           v-if="MicStart == false"
           style="color: white"
@@ -37,6 +33,10 @@
           :disabled="!MicStart"
           >Mic Off <v-icon dark right> mdi-microphone-off</v-icon></v-btn
         >
+        <v-btn style="color: white" color="#00695C" @click="nextDisplayExam"
+          >Quiz and Exam</v-btn>
+        <audio :srcObject.prop="audioElem2" autoplay></audio>
+        <br />
       </center>
     </div>
     <div class="chatRoom">
@@ -75,7 +75,7 @@ var io = require("socket.io-client");
 var options = {
         //rejectUnauthorized: false // allow self-signed certs
 };
-const socket = io("http://35.197.137.197:3001/",options);
+// const socket = io("http://35.197.137.197:3001/",options);
 var peerConnectionVideo = {};
 var peerConnectionAudio = {};
 const config = {
@@ -85,7 +85,8 @@ const config = {
     }
   ]
 };
-// const socket = io("http://localhost:3001/");
+// var socket = io("http://localhost:3001/");
+var socket = io("https://project-cs-classroom.herokuapp.com/");
 export default {
   data() {
     return {
@@ -99,6 +100,7 @@ export default {
       messageComment: "",
       codeStudent: "",
       MicStart: false,
+      speakerOn:false,
     };
   },
 
