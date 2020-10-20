@@ -122,7 +122,7 @@
           ><v-col cols="8">
             <v-card elevation="3">
               <v-text-field
-                v-model="fixNameTitle"
+                v-model="data.nameTitle"
                 :label="titleName"
                 :value="titleName"
               ></v-text-field>
@@ -134,40 +134,31 @@
               <div v-for="(data, index) in dataExample" :key="index">
                 <v-col>
                   <v-text-field
-                    v-model="fixQuestion[index]"
-                    :label="data.question"
+                    v-model="data.question"
                     :value="data.question"
                   ></v-text-field>
                   <div v-if="data.type === 'CHOICE'">
                     <v-text-field
-                      v-model="fixChoiceOne[index]"
-                      :label="data.choiceOne"
+                      v-model="data.choiceOne"
                       :value="data.choiceOne"
                     >
                     </v-text-field>
                     <v-text-field
-                      v-model="fixChoiceTwo[index]"
-                      :label="data.choiceTwo"
+                      v-model="data.choiceTwo"
                       :value="data.choiceTwo"
                     >
                     </v-text-field>
                     <v-text-field
-                      v-model="fixChoiceThree[index]"
-                      :label="data.choiceThree"
+                      v-model="data.choiceThree"
                       :value="data.choiceThree"
                     >
                     </v-text-field>
                     <v-text-field
-                      v-model="fixChoiceFour[index]"
-                      :label="data.choiceFour"
+                      v-model="data.choiceFour"
                       :value="data.choiceFour"
                     >
                     </v-text-field>
-                    <v-text-field
-                      v-model="fixAnswer[index]"
-                      :label="data.answer"
-                      :value="data.answer"
-                    >
+                    <v-text-field v-model="data.answer" :value="data.answer">
                     </v-text-field>
                   </div>
                 </v-col>
@@ -360,7 +351,7 @@ export default {
     },
     async updateData() {
       console.log("NameTitle", this.fixNameTitle);
-      console.log("question", this.fixQuestion);
+      console.log("question", this.dataExample);
       // let x;
       //  for (x = 0; x < this.dataExample.length; x++) {
       //  if()
