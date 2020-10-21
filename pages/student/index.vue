@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <p>This is Student Screen</p>
+    <h1 class="headerStyle">Student Room : {{email}}</h1>
     <v-row justify="center">
       <v-dialog v-model="dialog" persistent max-width="400">
         <template v-slot:activator="{ on, attrs }">
@@ -21,7 +21,7 @@
           </v-row>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="green darken-1" text @click="createRoom">JOIN</v-btn>
+            <v-btn color="green darken-1" text @click="joinRoom">JOIN</v-btn>
             <v-btn color="green darken-1" text @click="cancel">CANCEL</v-btn>
           </v-card-actions>
         </v-card>
@@ -70,11 +70,13 @@ export default {
     userIdStudent: "",
     idStudent: "",
     userEmail: "",
-    idRoom: ""
+    idRoom: "",
+    email:"",
   }),
   layout: "normal",
   mounted() {
     firebase.auth().onAuthStateChanged(user => {
+      this.email = user.email
       if (user) {
         this.userEmail = user.email;
       } else {
@@ -89,50 +91,61 @@ export default {
       this.$router.push(`/student/${id}`);
       this.$store.dispatch("classroom/getClassRoom", id);
     },
-    async createRoom() {
-      //get room id and get idStudent all
-      const snapshot = await db
+    async joinRoom() {
+      const snapshot  = await db
         .collection("room")
         .where("code", "==", this.codeRoom)
         .limit(1)
         .get();
-      if (!snapshot.empty) {
-        snapshot.forEach(doc => {
-          this.idRoom = doc.id;
-          if (!doc.data().idStudent) {
-            this.idStudent = ["DummyCode101"];
+        if(snapshot.empty){
+          alert("ไม่มีCodeห้องนี้ในระบบ")
+        }
+        else{
+          //get room id and get idStudent all
+          const snapshot = await db
+            .collection("room")
+            .where("code", "==", this.codeRoom)
+            .limit(1)
+            .get();
+          if (!snapshot.empty) {
+            snapshot.forEach(doc => {
+              this.idRoom = doc.id;
+              if (!doc.data().idStudent) {
+                this.idStudent = ["DummyCode101"];
+              } else {
+                this.idStudent = doc.data().idStudent;
+              }
+            });
           } else {
-            this.idStudent = doc.data().idStudent;
+          alert("JOIN Success");
           }
-        });
-      } else {
-        console.log("JOIN Success");
-      }
-      //get userIdStudent
-      const snapshot2 = await db
-        .collection("user")
-        .where("email", "==", this.userEmail)
-        .limit(1)
-        .get();
-      if (!snapshot2.empty) {
-        snapshot2.forEach(doc => {
-          this.userIdStudent = doc.id;
-        });
-      } else {
-      }
-      this.idStudent.push(this.userIdStudent);
-      let unique = [...new Set(this.idStudent)];
-      //Add room
-      await db
-        .collection("room")
-        .doc(this.idRoom)
-        .update({
-          idStudent: unique
-        });
-      this.codeRoom = "";
-      const _this = this;
-      _this.getRoom();
-      this.dialog = false;
+          //get userIdStudent
+          const snapshot2 = await db
+            .collection("user")
+            .where("email", "==", this.userEmail)
+            .limit(1)
+            .get();
+          if (!snapshot2.empty) {
+            snapshot2.forEach(doc => {
+              this.userIdStudent = doc.id;
+            });
+          } else {
+          }
+          this.idStudent.push(this.userIdStudent);
+          let unique = [...new Set(this.idStudent)];
+          //Add room
+           await db
+            .collection("room")
+            .doc(this.idRoom)
+            .update({
+              idStudent: unique
+            });
+            alert("Join ห้องสำเร็จ")
+          this.codeRoom = "";
+          const _this = this;
+          _this.getRoom();
+          this.dialog = false;
+        }
     },
     cancel() {
       this.codeRoom = "";
@@ -186,5 +199,9 @@ export default {
   margin-left: auto;
   margin-right: auto;
   width: 10%;
+}
+.headerStyle{
+  color:#E65100;
+  font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif
 }
 </style>

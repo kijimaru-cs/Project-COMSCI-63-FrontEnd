@@ -1,6 +1,6 @@
 <template>
   <v-app light>
-    <v-app-bar app class="pa-0 ma-0">
+    <v-app-bar app class="pa-0 ma-0" style="background-color: #00796B">
       <v-app-bar-nav-icon>
         <div>
           <a href="/">
@@ -9,18 +9,18 @@
         </div>
       </v-app-bar-nav-icon>
       <v-toolbar-title>
-        <h1>Classroom:{{ this.$route.params.id }}</h1>
+        <h1 style="color: white;">Classroom:{{ this.$route.params.id }}</h1>
       </v-toolbar-title>
       <br />
       <v-spacer></v-spacer>
       <v-btn icon>
-        <v-icon @click="pushEditClassroom(idRoom)">mdi-account-edit</v-icon>
+        <v-icon style="color: white;" @click="pushEditClassroom(idRoom)">mdi-account-edit</v-icon>
       </v-btn>
       <v-btn icon>
-        <v-icon @click="Signout">mdi-logout-variant</v-icon>
+        <v-icon style="color: white;" @click="Signout">mdi-logout-variant</v-icon>
       </v-btn>
     </v-app-bar>
-    <v-main>
+    <v-main class="mainStyle">
       <v-container>
         <nuxt />
       </v-container>
@@ -104,7 +104,9 @@ export default {
 .con-center {
   text-align: center;
 }
-
+.mainStyle{
+  background-color: #E8F5E9;
+}
 .toolbar {
   width: 100%;
 }
