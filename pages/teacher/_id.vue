@@ -16,7 +16,7 @@
           autoplay="autoplay"
           controls
         ></video>
-        <audio :srcObject.prop="audioElem2" controls></audio>
+        <audio :srcObject.prop="audioElem2" autoplay></audio>
         <br />
         <v-btn
           v-if="buttonStart == false"
@@ -24,7 +24,6 @@
           color="#00695C"
           @click="startCapture"
           :disabled="buttonStart"
-
           >Start Share Screen<v-icon dark right>
             mdi-monitor-multiple
           </v-icon></v-btn>
@@ -293,8 +292,12 @@ import Cookies from "js-cookie";
 import { isEmpty } from "lodash";
 import moment from "moment";
 const io = require("socket.io-client");
-// const socket = io("http://35.197.137.197:3001/");
-var socket = io("http://localhost:3001/");
+var options = {
+        //rejectUnauthorized: false // allow self-signed certs
+};
+// const socket = io("http://35.197.137.197:3001/",options);
+// var socket = io("http://localhost:3001/");
+var socket = io("https://project-cs-classroom.herokuapp.com/");
 var peerConnectionsVideo = {};
 var peerConnectionAudio = {};
 var ShareVideo

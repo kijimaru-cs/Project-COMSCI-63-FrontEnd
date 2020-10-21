@@ -1,6 +1,20 @@
 <template>
   <v-app light>
-    <v-main>
+    <v-app-bar app class="pa-0 ma-0" style="background-color: #00796B">
+      <v-app-bar-nav-icon>
+        <div>
+          <a href="/">
+            <img src="KU_Logo_PNG.png" style="width:60px;height:60px;border:2px solid #fff;backgroundColor: white" />
+          </a>
+        </div>
+      </v-app-bar-nav-icon>
+      <v-toolbar-title>
+        <h1 style="color: white;text-shadow: 2px 2px black;">Classroom</h1>
+      </v-toolbar-title>
+      <br />
+      <v-spacer></v-spacer>
+    </v-app-bar>
+    <v-main class="mainStyle">
       <v-container v-if="isUser">
         <nuxt />
       </v-container>
@@ -41,7 +55,7 @@ export default {
         );
         this.$store.dispatch("user/getDataByEmail", docs);
       }
-      console.log("data", data);
+      // console.log("data", data);
     }
   },
   watch: {
@@ -68,8 +82,10 @@ export default {
 .con-center {
   text-align: center;
 }
-
 .toolbar {
   width: 100%;
+}
+.mainStyle{
+  background-color: #E8F5E9;
 }
 </style>

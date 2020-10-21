@@ -1,11 +1,11 @@
-<template>
+  <template>
   <div class="container">
-    <p>This is teacher Screen</p>
+    <h1 class="headerStyle">Teacher Room : {{email}}</h1>
+    <br />
     <v-row justify="center">
       <v-dialog v-model="dialog" persistent max-width="400">
         <template v-slot:activator="{ on, attrs }">
-          <v-btn color="primary" dark v-bind="attrs" v-on="on"
-
+          <v-btn color="green darken-1" dark v-bind="attrs" v-on="on"
             >CREATE ROOM<v-icon > mdi-plus-circle-outline</v-icon></v-btn
           >
         </template>
@@ -41,6 +41,7 @@
         </v-card>
       </v-dialog>
     </v-row>
+    <br/><br/>
     <div class="card">
       <v-card
         v-for="data in dataRoom"
@@ -82,30 +83,18 @@ export default {
     nameRoom: "",
     codeRoom: "",
     dataRoom: [],
-    role: ""
+    role: "",
+    email:"",
   }),
   layout: "normal",
   mounted() {
-    const navObject = performance.navigation;
-    console.log(navObject);
-    if (navObject.type == 1 || navObject.type == 2) {
-      firebase.auth().onAuthStateChanged((user) => {
-        if (user) {
-          this.$router.push("/");
-        } else {
-          this.$router.push("/");
-        }
-      });
-      this.getRoom();
-    }
     firebase.auth().onAuthStateChanged((user) => {
-      if (user) {
-      } else {
-        this.$router.push("/");
-      }
+      this.email = user.email
     });
     this.getRoom();
+   
   },
+  
   methods: {
     pushClassroom(id) {
       this.$router.push(`/teacher/${id}`);
@@ -117,7 +106,7 @@ export default {
         .where("code", "==", this.codeRoom)
         .limit(1)
         .get();
-      console.log(this.codeRoom);
+      // console.log(this.codeRoom);
       if (!snapshot.empty) {
         alert("This CodeRoom has already been used");
         this.codeRoom = "";
@@ -128,7 +117,7 @@ export default {
           code: this.codeRoom,
           idTeacher: this.getUser.id
         });
-        console.log("Create Success");
+        // console.log("Create Success");
       }
       this.nameRoom = "";
       this.codeRoom = "";
@@ -162,7 +151,7 @@ export default {
             })
           );
 
-          console.log(this.dataRoom.idStudent);
+          // console.log(this.dataRoom.idStudent);
         }
       } catch (error) {
         console.log(this.getUser.id);
@@ -186,10 +175,15 @@ export default {
 .card {
   padding: 5;
 }
+
 .center {
   display: block;
   margin-left: auto;
   margin-right: auto;
   width: 10%;
+}
+.headerStyle{
+  color:#E65100;
+  font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif
 }
 </style>

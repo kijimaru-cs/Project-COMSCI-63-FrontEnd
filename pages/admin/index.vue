@@ -6,9 +6,6 @@
     <div>
       <div class="center-button">
         <v-btn x-large href="/admin/login" color="success" dark>Login</v-btn>
-        <v-btn x-large href="/admin/register" color="success" dark
-          >Register</v-btn
-        >
       </div>
     </div>
   </div>
