@@ -26,13 +26,13 @@
           :disabled="buttonStart"
           >Start Share Screen<v-icon dark right>
             mdi-monitor-multiple
-          </v-icon></v-btn>
+          </v-icon></v-btn
+        >
         <v-btn
           v-if="buttonStart == true"
           style="color: white"
           color="#E53935"
           @click="stopCapture"
-
           :disabled="!buttonStart"
           >Stop Share Screen<v-icon dark right>
             mdi-monitor-multiple
@@ -76,7 +76,6 @@
             <v-card-title>สร้างเเบบฝึกหัดหรือข้อสอบ</v-card-title>
             <v-divider></v-divider>
             <v-row>
-
               <v-col cols="11" sm="5">
                 <v-menu
                   ref="menu1"
@@ -151,7 +150,6 @@
               </v-col>
             </v-row>
 
-
             <v-col cols="10" sm="6" md="3">
               <v-text-field
                 v-model="nameTitle"
@@ -168,7 +166,6 @@
             >
             <v-col cols="10" sm="6" md="3">
               <v-text-field
-
                 v-model="Quizetion"
                 label="Quetion"
                 outlined
@@ -300,7 +297,7 @@ var options = {
 var socket = io("https://project-cs-classroom.herokuapp.com/");
 var peerConnectionsVideo = {};
 var peerConnectionAudio = {};
-var ShareVideo
+var ShareVideo;
 const config = {
   iceServers: [
     {
@@ -396,10 +393,10 @@ export default {
     });
 
     socket.emit("create", this.$route.params.id);
-    socket.on("sendMessage", (msg) => {
+    socket.on("sendMessage", msg => {
       this.comment = this.comment + msg.messageComment + "\n";
     });
-    socket.on("sendUsername", (msg) => {
+    socket.on("sendUsername", msg => {
       this.onlineUsername = msg;
     });
     socket.on("answerVideo", (id, description) => {
@@ -429,7 +426,7 @@ export default {
         });
     });
 
-    socket.on("watcherAudioSend", (id) => {
+    socket.on("watcherAudioSend", id => {
       const peerConnection = new RTCPeerConnection(config);
       peerConnectionAudio[id] = peerConnection;
 
@@ -462,21 +459,25 @@ export default {
     socket.on("candidateAudioReceive2", (id, candidate) => {
       peerConnectionAudio
         .addIceCandidate(new RTCIceCandidate(candidate))
-        .catch((e) => console.error(e));
+        .catch(e => console.error(e));
     });
     socket.on("offerAudioReceive2", (id, description) => {
       peerConnectionAudio = new RTCPeerConnection(config);
       peerConnectionAudio
         .setRemoteDescription(description)
         .then(() => peerConnectionAudio.createAnswer())
-        .then((sdp) => peerConnectionAudio.setLocalDescription(sdp))
+        .then(sdp => peerConnectionAudio.setLocalDescription(sdp))
         .then(() => {
-          socket.emit("answerAudioReceive2", id, peerConnectionAudio.localDescription);
+          socket.emit(
+            "answerAudioReceive2",
+            id,
+            peerConnectionAudio.localDescription
+          );
         });
-      peerConnectionAudio.ontrack = (event) => {
+      peerConnectionAudio.ontrack = event => {
         this.audioElem2 = event.streams[0];
       };
-      peerConnectionAudio.onicecandidate = (event) => {
+      peerConnectionAudio.onicecandidate = event => {
         if (event.candidate) {
           socket.emit("candidateAudioReceive2", id, event.candidate);
         }
@@ -500,7 +501,7 @@ export default {
         .limit(1)
         .get();
       if (!snapshot.empty) {
-        snapshot.forEach((doc) => {
+        snapshot.forEach(doc => {
           this.username = doc.data().username;
           this.sendUsername(this.username);
         });
@@ -517,7 +518,7 @@ export default {
         .then(mediaStream => {
           this.videoElem = mediaStream;
           socket.emit("broadcasterVideo");
-          (this.buttonStart = true)
+          this.buttonStart = true;
         });
     },
     async MicOn() {
@@ -526,19 +527,19 @@ export default {
         .then(mediaStream => {
           this.audioElem = mediaStream;
           socket.emit("broadcasterAudioSend");
-          (this.MicStart = true)
+          this.MicStart = true;
         })
         .catch(err => {
           console.error("Error: " + err);
         });
     },
     stopCapture() {
-      (this.buttonStart = false)
-      this.videoElem.getTracks().forEach((track) => track.stop());
+      this.buttonStart = false;
+      this.videoElem.getTracks().forEach(track => track.stop());
     },
     MicOff() {
-      (this.MicStart = false)
-      this.audioElem.getTracks().forEach((track) => track.stop());
+      this.MicStart = false;
+      this.audioElem.getTracks().forEach(track => track.stop());
     },
     logout() {},
     sendMessage(messageComment) {
