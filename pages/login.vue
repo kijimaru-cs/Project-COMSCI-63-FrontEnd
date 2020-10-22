@@ -6,26 +6,28 @@
     <br />
     <br />
     <br />
-    <p class="input" style="font-size: 30px; color: black">เข้าสู่ระบบห้องเรียน</p>
+    <p class="input" style="font-size: 30px; color: black">
+      เข้าสู่ระบบห้องเรียน
+    </p>
     <div class="input">
-    <v-text-field
-      label="E-mail"
-      :rules="rules"
-      hide-details="auto"
-      v-model="email"
-    ></v-text-field>
-    <v-text-field
-      v-model="password"
-      :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
-      :type="show1 ? 'text' : 'password'"
-      name="input-10-1"
-      :rules="rules"
-      label="Password"
-      hint="At least 8 characters"
-      counter
-      @keyup.enter="login"
-      @click:append="show1 = !show1"
-    ></v-text-field>
+      <v-text-field
+        label="E-mail"
+        :rules="rules"
+        hide-details="auto"
+        v-model="email"
+      ></v-text-field>
+      <v-text-field
+        v-model="password"
+        :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
+        :type="show1 ? 'text' : 'password'"
+        name="input-10-1"
+        :rules="rules"
+        label="Password"
+        hint="At least 8 characters"
+        counter
+        @keyup.enter="login"
+        @click:append="show1 = !show1"
+      ></v-text-field>
     </div>
     <p class="input" style="color: red">{{ error }}</p>
     <p></p>
@@ -37,7 +39,7 @@
         large
         color="#00695C"
         @click="login"
-        >Login<v-icon > mdi-login</v-icon></v-btn
+        >Login<v-icon> mdi-login</v-icon></v-btn
       >
     </div>
   </div>
@@ -56,9 +58,9 @@ export default {
     error: "",
     dataCheck: {},
     rules: [
-      (value) => !!value || "Required.",
-      (value) => (value && value.length >= 3) || "Min 3 characters",
-    ],
+      value => !!value || "Required.",
+      value => (value && value.length >= 3) || "Min 3 characters"
+    ]
   }),
   layout: "toolbar",
   mounted() {
@@ -68,8 +70,8 @@ export default {
     Signout() {
       auth
         .signOut()
-        .then(function () {})
-        .catch(function (error) {
+        .then(function() {})
+        .catch(function(error) {
           // An error happened.
         });
     },
@@ -78,7 +80,7 @@ export default {
       try {
         await auth.signInWithEmailAndPassword(this.email, this.password);
         const data = await new Promise((resolve, reject) =>
-          auth.onAuthStateChanged(async (user) => {
+          auth.onAuthStateChanged(async user => {
             resolve(user);
           })
         );
@@ -90,7 +92,7 @@ export default {
             .get();
           if (!snapshot.empty) {
             const [docs] = await Promise.all(
-              snapshot.docs.map(async (doc) => {
+              snapshot.docs.map(async doc => {
                 let item = {};
                 item = await doc.data();
                 item.id = doc.id;
@@ -103,15 +105,17 @@ export default {
                 this.$router.push("/student");
               } else if (docs.role === "TEACHER") {
                 this.$router.push("/teacher");
+              } else if (docs.role === "ADMIN") {
+                this.$router.push("/admin/edit");
               }
               console.log("LOGIN SUCCESS");
             } else {
               auth
                 .signOut()
-                .then(function () {
+                .then(function() {
                   // Sign-out successful.
                 })
-                .catch(function (error) {
+                .catch(function(error) {
                   // An error happened.
                 });
               console.log("LOGIN FAILED");
@@ -120,11 +124,11 @@ export default {
           // console.log("data", data);
         }
       } catch (error) {
-        this.error = error
+        this.error = error;
         console.error(error);
       }
-    },
-  },
+    }
+  }
 };
 </script>
 
@@ -136,11 +140,10 @@ export default {
   text-align: center;
 }
 
-.input{
+.input {
   width: 50%;
   margin-left: auto;
   margin-right: auto;
-
 }
 
 .center {
