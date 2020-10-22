@@ -71,141 +71,147 @@
               >Show Quiz And Test</v-btn
             >
           </template>
-          <v-date-picker v-model="date" :min="dateMin"></v-date-picker>
-          <v-card>
-            <v-card-title>สร้างเเบบฝึกหัดหรือข้อสอบ</v-card-title>
-            <v-divider></v-divider>
-            <v-row>
-              <v-col cols="11" sm="5">
-                <v-menu
-                  ref="menu1"
-                  v-model="menu1"
-                  :close-on-content-click="false"
-                  :nudge-right="40"
-                  :return-value.sync="textStart"
-                  transition="scale-transition"
-                  offset-y
-                  max-width="290px"
-                  min-width="290px"
-                >
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-text-field
-                      v-model="textStart"
-                      label="TimeStart"
-                      prepend-icon="mdi-clock-time-four-outline"
-                      readonly
-                      v-bind="attrs"
-                      v-on="on"
-                    ></v-text-field>
-                  </template>
-                  <v-time-picker
-                    v-if="menu1"
-                    v-model="timerStart"
-                    full-width
-                    @click:minute="$refs.menu1.save(timerStart)"
-                  ></v-time-picker>
-                </v-menu>
+
+          <v-div>
+            <v-card>
+              <v-row class="background" justify="center">
+                <v-date-picker v-model="date" :min="dateMin"></v-date-picker>
+              </v-row>
+              <v-divider></v-divider>
+              <v-card-title>สร้างเเบบฝึกหัดหรือข้อสอบ</v-card-title>
+              <v-divider></v-divider>
+
+              <v-col cols="10" sm="6" md="3">
+                <v-text-field
+                  v-model="nameTitle"
+                  label="FileName"
+                  outlined
+                ></v-text-field>
               </v-col>
-              <v-spacer></v-spacer>
-              <v-col cols="11" sm="5">
-                <v-menu
-                  ref="menu2"
-                  v-model="menu2"
-                  :close-on-content-click="false"
-                  :nudge-right="40"
-                  :return-value.sync="textEnd"
-                  transition="scale-transition"
-                  offset-y
-                  max-width="290px"
-                  min-width="290px"
-                >
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-text-field
-                      v-model="textEnd"
-                      label="TimeEnd"
-                      prepend-icon="mdi-clock-time-four-outline"
-                      readonly
-                      v-bind="attrs"
-                      v-on="on"
-                    ></v-text-field>
-                  </template>
-                  <v-time-picker
-                    v-if="menu2"
-                    v-model="timerEnd"
-                    full-width
-                    @click:minute="$refs.menu2.save(timerEnd)"
-                  ></v-time-picker>
-                </v-menu>
+              <v-row>
+                <v-col cols="11" sm="5">
+                  <v-menu
+                    ref="menu1"
+                    v-model="menu1"
+                    :close-on-content-click="false"
+                    :nudge-right="40"
+                    :return-value.sync="textStart"
+                    transition="scale-transition"
+                    offset-y
+                    max-width="290px"
+                    min-width="290px"
+                  >
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-text-field
+                        v-model="textStart"
+                        label="TimeStart"
+                        prepend-icon="mdi-clock-time-four-outline"
+                        readonly
+                        v-bind="attrs"
+                        v-on="on"
+                      ></v-text-field>
+                    </template>
+                    <v-time-picker
+                      v-if="menu1"
+                      v-model="timerStart"
+                      full-width
+                      @click:minute="$refs.menu1.save(timerStart)"
+                    ></v-time-picker>
+                  </v-menu>
+                </v-col>
                 <v-spacer></v-spacer>
+                <v-col cols="11" sm="5">
+                  <v-menu
+                    ref="menu2"
+                    v-model="menu2"
+                    :close-on-content-click="false"
+                    :nudge-right="40"
+                    :return-value.sync="textEnd"
+                    transition="scale-transition"
+                    offset-y
+                    max-width="290px"
+                    min-width="290px"
+                  >
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-text-field
+                        v-model="textEnd"
+                        label="TimeEnd"
+                        prepend-icon="mdi-clock-time-four-outline"
+                        readonly
+                        v-bind="attrs"
+                        v-on="on"
+                      ></v-text-field>
+                    </template>
+                    <v-time-picker
+                      v-if="menu2"
+                      v-model="timerEnd"
+                      full-width
+                      @click:minute="$refs.menu2.save(timerEnd)"
+                    ></v-time-picker>
+                  </v-menu>
+                  <v-spacer></v-spacer>
+                </v-col>
+              </v-row>
+
+              <v-row>
+                <v-col class="ml-3" cols="11" sm="5">
+                  <v-select
+                    v-model="Example"
+                    :items="choice"
+                    label="type"
+                  ></v-select>
+                </v-col>
+              </v-row>
+
+              <v-card-subtitle v-if="Example === 'CHOICE'" class="pt-3"
+                >ข้อที่ {{ countChoice + 1 }}</v-card-subtitle
+              >
+              <v-card-subtitle v-else-if="Example === 'WRITING'" class="pt-3"
+                >ข้อที่ {{ countWriting + 1 }}</v-card-subtitle
+              >
+              <v-col cols="10" sm="6" md="3">
+                <v-text-field
+                  v-model="Quizetion"
+                  label="Quetion"
+                  outlined
+                ></v-text-field>
+                <a v-if="Example === 'CHOICE'">
+                  <v-text-field
+                    v-model="choice1"
+                    label="Choice1"
+                    outlined
+                  ></v-text-field>
+                  <v-text-field
+                    v-model="choice2"
+                    label="Choice2"
+                    outlined
+                  ></v-text-field>
+                  <v-text-field
+                    v-model="choice3"
+                    label="Choice3"
+                    outlined
+                  ></v-text-field>
+                  <v-text-field
+                    v-model="choice4"
+                    label="Choice4"
+                    outlined
+                  ></v-text-field>
+                  <v-text-field
+                    v-model="answer"
+                    label="Answer"
+                    outlined
+                  ></v-text-field>
+                </a>
               </v-col>
-            </v-row>
 
-            <v-row>
-              <v-col cols="11" sm="5">
-                <v-select
-                  v-model="Example"
-                  :items="choice"
-                  label="type"
-                ></v-select>
-              </v-col>
-            </v-row>
-
-            <v-col cols="10" sm="6" md="3">
-              <v-text-field
-                v-model="nameTitle"
-                label="FileName"
-                outlined
-              ></v-text-field>
-            </v-col>
-
-            <v-card-subtitle v-if="Example === 'CHOICE'" class="pt-3"
-              >ข้อที่ {{ countChoice + 1 }}</v-card-subtitle
-            >
-            <v-card-subtitle v-else-if="Example === 'WRITING'" class="pt-3"
-              >ข้อที่ {{ countWriting + 1 }}</v-card-subtitle
-            >
-            <v-col cols="10" sm="6" md="3">
-              <v-text-field
-                v-model="Quizetion"
-                label="Quetion"
-                outlined
-              ></v-text-field>
-              <a v-if="Example === 'CHOICE'">
-                <v-text-field
-                  v-model="choice1"
-                  label="Choice1"
-                  outlined
-                ></v-text-field>
-                <v-text-field
-                  v-model="choice2"
-                  label="Choice2"
-                  outlined
-                ></v-text-field>
-                <v-text-field
-                  v-model="choice3"
-                  label="Choice3"
-                  outlined
-                ></v-text-field>
-                <v-text-field
-                  v-model="choice4"
-                  label="Choice4"
-                  outlined
-                ></v-text-field>
-                <v-text-field
-                  v-model="answer"
-                  label="Answer"
-                  outlined
-                ></v-text-field>
-              </a>
-            </v-col>
-
-            <v-divider></v-divider>
-            <v-card-actions>
-              <v-btn color="blue darken-1" text @click="close">Close</v-btn>
-              <v-btn color="blue darken-1" text @click="save">Save</v-btn>
-              <v-btn color="blue datken-1" text @click="next">Next</v-btn>
-            </v-card-actions>
-          </v-card>
+              <v-divider></v-divider>
+              <v-card-actions>
+                <v-btn color="blue darken-1" text @click="close">Close</v-btn>
+                <v-btn color="blue darken-1" text @click="save">Save</v-btn>
+                <v-btn color="blue datken-1" text @click="next">Next</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-div>
         </v-dialog>
         <template>
           <div class="text-center">
@@ -290,7 +296,7 @@ import { isEmpty } from "lodash";
 import moment from "moment";
 const io = require("socket.io-client");
 var options = {
-        //rejectUnauthorized: false // allow self-signed certs
+  //rejectUnauthorized: false // allow self-signed certs
 };
 // const socket = io("http://35.197.137.197:3001/",options);
 // var socket = io("http://localhost:3001/");
@@ -801,5 +807,11 @@ Cookies.set("user-email", "userEmail", { expires: 1 });
 .p {
   color: green;
   white-space: pre-line;
+}
+.background {
+  background: white;
+}
+.border {
+  border-radius: 3;
 }
 </style>
