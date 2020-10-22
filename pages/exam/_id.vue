@@ -1,12 +1,9 @@
 <template>
   <v-row>
     <v-col v-if="getUser.role === 'STUDENT'">
-      <v-card flat>
-        <v-card-text>
-          <v-container fluid>
-            <v-row>
+          <center>
               <v-col cols="12" sm="6" md="6">
-                <v-card v-for="(data, index) in dataExample" :key="index">
+                <v-card class="cardStyle" v-for="(data, index) in dataExample" :key="index">
                   <div v-if="data.type === 'CHOICE'">
                     {{ `'ข้อที่${data.countChoice}. ${data.question}'` }}
                   </div>
@@ -58,12 +55,11 @@
                       ></v-col>
                     </v-row>
                   </v-radio-group>
+                  <br/><br/>
                 </v-card>
               </v-col>
-            </v-row>
-          </v-container>
-        </v-card-text>
-      </v-card>
+          </center>
+      <center>
       <v-btn
         style="color: white"
         color="#00695C"
@@ -71,6 +67,7 @@
         :disabled="saveDisable"
         >Submit</v-btn
       >
+      </center>
       <template>
         <div class="text-center">
           <v-dialog v-model="displayCard" width="500">
@@ -85,6 +82,7 @@
         </div>
       </template>
     </v-col>
+
     <v-col v-else>
       <template v-if="getMode === 'EDIT EXAM'">
         <v-card
@@ -375,6 +373,7 @@ export default {
     displayTime: false,
     typeTime: ""
   }),
+  layout: "toolbarExam",
   mounted() {
     this.getDataExam();
     this.getAnswer();
@@ -631,3 +630,9 @@ export default {
   }
 };
 </script>
+<style scoped>
+.cardStyle{
+  border-block-end-style:groove;
+  background-color: ;
+}
+</style>

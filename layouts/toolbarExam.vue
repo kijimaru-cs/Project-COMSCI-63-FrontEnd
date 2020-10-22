@@ -1,24 +1,14 @@
 <template>
   <v-app light>
     <v-app-bar app class="pa-0 ma-0" style="background-color: #00796B">
-      <v-app-bar-nav-icon>
-        <div>
-          <a href="/">
-            <img src="KU_Logo_PNG.png" style="width:60px;height:60px;border:2px solid #fff;backgroundColor: white" />
-          </a>
-        </div>
-      </v-app-bar-nav-icon>
       <v-toolbar-title>
-        <h1 style="color: white;">Classroom:{{ this.$route.params.id }}</h1>
+        <h1 style="color: white;text-shadow: 2px 2px black;">Test Quiz Exam</h1>
       </v-toolbar-title>
       <br />
       <v-spacer></v-spacer>
-      <v-btn icon>
-        <v-icon style="color: white;" @click="Signout">mdi-logout-variant</v-icon>
-      </v-btn>
     </v-app-bar>
-    <v-main class="mainStyle">
-      <v-container v-if="isUser">
+    <v-main class="main">
+      <v-container>
         <nuxt />
       </v-container>
     </v-main>
@@ -33,7 +23,7 @@ import { isEmpty } from "lodash";
 export default {
   data: () => ({}),
 
-  async mounted() {
+  async created() {
     const data = await new Promise((resolve, reject) =>
       firebase.auth().onAuthStateChanged(async user => {
         resolve(user);
@@ -58,38 +48,6 @@ export default {
         );
         this.$store.dispatch("user/getDataByEmail", docs);
       }
-    }
-    if (this.$route.params.id) {
-      const snapshot = await firebase
-        .firestore()
-        .collection("room")
-        .where("code", "==", this.$route.params.id)
-        .limit(1)
-        .get();
-      if (!snapshot.empty) {
-        const [docs] = await Promise.all(
-          snapshot.docs.map(async doc => {
-            let item = {};
-            item = await doc.data();
-            item.id = doc.id;
-            return item;
-          })
-        );
-        this.$store.dispatch("classroom/getClassRoom", docs);
-      }
-    }
-  },
-  methods: {
-    Signout() {
-      firebase
-        .auth()
-        .signOut()
-        .then(function() {
-          this.$router.push("/");
-        })
-        .catch(function(error) {
-          // An error happened.
-        });
     }
   },
   watch: {
@@ -116,9 +74,11 @@ export default {
 .con-center {
   text-align: center;
 }
-.mainStyle{
-  background-color: #E8F5E9;
+
+.main{
+  background-color: #B2DFDB;
 }
+
 .toolbar {
   width: 100%;
 }
